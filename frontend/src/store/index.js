@@ -8,7 +8,7 @@ export default new Vuex.Store({
   state: {
     status: '',
     token: localStorage.getItem('token') || '',
-    user: {},
+    user: [],
     users: [],
   },
   mutations: {
@@ -96,13 +96,13 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         if (confirm("Are you sure you want to delete the account!"))
           axios({
-            url: 'http://localhost:8000/accounts/delete/' + state.token.id,
+            url: 'http://localhost:8000/accounts/delete/' + state.token[0].id,
             data: user,
             method: 'GET'
           })
             .then(resp => {
-              commit('LOGOUT')
               commit('DELETE_USER')
+              commit('LOGOUT')
               dispatch('logout')
               resolve(resp)
             })
@@ -116,7 +116,6 @@ export default new Vuex.Store({
     authUser: state => state.token,
     isLoggedIn: state => !!state.token,
     authStatus: state => state.status,
-    currentUser: state => state.user,
     allUsers: state => state.users,
   }
 })

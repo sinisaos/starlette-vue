@@ -13,7 +13,7 @@
         </thead>
         <tbody>
           <tr v-for="(user, index) in allUsers" :key="index">
-            <td>{{ user.username }} - {{ user.id }}</td>
+            <td>{{ user.username }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.joined | dateFormat }}</td>
             <td>{{ user.last_login | dateFormat}}</td>

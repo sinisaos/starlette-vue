@@ -6,19 +6,19 @@
         <span class="float-left">
           <strong>Username</strong>
         </span>
-        <span class="float-right">{{ authUser.username }}</span>
+        <span class="float-right">{{ authUser[0].username }}</span>
       </b-list-group-item>
       <b-list-group-item>
         <span class="float-left">
           <strong>Email</strong>
         </span>
-        <span class="float-right">{{ authUser.email }}</span>
+        <span class="float-right">{{ authUser[0].email }}</span>
       </b-list-group-item>
       <b-list-group-item>
         <span class="float-left">
           <strong>Joined</strong>
         </span>
-        <span class="float-right">{{ authUser.joined | dateFormat }}</span>
+        <span class="float-right">{{ authUser[0].joined | dateFormat }}</span>
       </b-list-group-item>
       <b-list-group-item>
         <span class="float-left">
@@ -27,7 +27,7 @@
             login
           </strong>
         </span>
-        <span class="float-right">{{ authUser.last_login | dateFormat }}</span>
+        <span class="float-right">{{ authUser[0].last_login | dateFormat }}</span>
       </b-list-group-item>
       <b-list-group-item>
         <span class="float-left">
@@ -36,14 +36,14 @@
             count
           </strong>
         </span>
-        <span class="float-right">{{ authUser.login_count }}</span>
+        <span class="float-right">{{ authUser[0].login_count }}</span>
       </b-list-group-item>
     </b-list-group>
     <br />
     <button
       class="btn btn-danger float-right"
-      v-if="authUser.login_count > 1"
-      @click="delete_user(authUser.id)"
+      v-if="authUser[0].login_count > 1"
+      @click="delete_user(authUser[0].id)"
     >Delete account</button>
   </div>
 </template>
@@ -52,7 +52,7 @@
 import { mapGetters } from "vuex";
 export default {
   computed: {
-    ...mapGetters(["authUser", "currentUser"])
+    ...mapGetters(["authUser"])
   },
   filters: {
     dateFormat: function(value) {

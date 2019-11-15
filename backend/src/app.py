@@ -9,6 +9,7 @@ from secure import SecureHeaders
 from settings import SECRET_KEY, DB_URI
 from models import UserAuthentication, User
 from accounts.routes import routes
+from questions.routes import questions_routes
 
 # Security Headers are HTTP response headers that, when set,
 # can enhance the security of your web application
@@ -18,6 +19,7 @@ secure_headers = SecureHeaders()
 
 app = Starlette(debug=True)
 app.mount("/accounts", routes)
+app.mount("/questions", questions_routes)
 app.add_middleware(AuthenticationMiddleware, backend=UserAuthentication())
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.add_middleware(
@@ -33,16 +35,18 @@ app.add_middleware(
 async def index(request):
     token = request.cookies.get('jwt')
     auth_user = request.user.display_name
-    results = await User.all().order_by('-id')
+    # use values() for serialization
+    results = await User.all().order_by('-id').values()
     try:
-        result = await User.get(username=auth_user)
+        result = await User.get(username=auth_user).values()
         return UJSONResponse(
             {
                 "results": results,
                 "token": token,
                 "auth_user": auth_user,
-                "result": result
-            })
+                "result": result,
+            }
+        )
     except:
         response = UJSONResponse(
             {
