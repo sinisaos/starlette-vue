@@ -4,19 +4,30 @@
       <h4>Result(s) for tag: "{{ this.$route.params.name }}"</h4>
     </div>
     <br />
-    <div class="col-md-8 offset-md-2" v-for="(item, index) in questions" :key="index">
-      <h4>
-        <router-link :to="{ name: 'question', params: { id: item.id, slug: item.slug }}">
-          <b>{{ item.title }}</b>
-        </router-link>
-      </h4>
-      <span>
-        asked on
-        <i>{{ item.created | dateFormat }}</i> by
-        <b>{{ item.username }}</b>
-        <b></b>
-      </span>
-      <hr />
+    <paginate name="questions" :list="questions" tag="div">
+      <div
+        class="col-md-8 offset-md-2"
+        v-for="(item, index) in paginated('questions')"
+        :key="index"
+      >
+        <h4>
+          <router-link :to="{ name: 'question', params: { id: item.id, slug: item.slug }}">
+            <b>{{ item.title }}</b>
+          </router-link>
+        </h4>
+        <span>
+          asked on
+          <i>{{ item.created | dateFormat }}</i> by
+          <b>{{ item.username }}</b>
+          <b></b>
+        </span>
+        <hr />
+      </div>
+    </paginate>
+    <div class="col-md-8 offset-md-2">
+      <ul class="pagination">
+        <paginate-links for="questions" :async="true" :limit="2" :show-step-links="true"></paginate-links>
+      </ul>
     </div>
   </div>
 </template>
@@ -27,7 +38,8 @@ import axios from "axios";
 export default {
   data() {
     return {
-      questions: []
+      questions: [],
+      paginate: ["questions"]
     };
   },
   filters: {

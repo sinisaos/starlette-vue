@@ -21,14 +21,15 @@
             </div>
             <div class="form-group">
               <label for="content">Content</label>
-              <input
-                type="content"
-                v-model="content"
+              <b-form-textarea
                 id="content"
+                v-model="content"
                 name="content"
                 class="form-control"
+                rows="5"
+                max-rows="10"
                 :class="{ 'is-invalid': $v.content.$error }"
-              />
+              ></b-form-textarea>
               <div v-if="$v.content.$error" class="invalid-feedback">
                 <span v-if="!$v.content.required">Content is required</span>
               </div>
@@ -36,7 +37,7 @@
             <div class="form-group">
               <label for="tags">Tags</label>
               <input
-                type="tags"
+                type="text"
                 v-model="tags"
                 id="tags"
                 name="tags"

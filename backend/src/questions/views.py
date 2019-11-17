@@ -6,7 +6,7 @@ from starlette.responses import (
 )
 from starlette.authentication import requires
 from tortoise.transactions import in_transaction
-from models import User, Question, Tag
+from models import User, Question, Tag, Answer
 
 
 async def questions_all(request):
@@ -41,12 +41,25 @@ async def question(request):
             LEFT JOIN tag ON question_tag.tag_id = tag.id  \
             WHERE question.id = {id} GROUP BY question.id"
         )
+        answers = await conn.execute_query(
+            f"SELECT answer.*, user.username FROM answer \
+            JOIN user ON user.id=answer.ans_user_id \
+            JOIN question ON question.id = answer.question_id \
+            WHERE question.id = {id} ORDER BY answer.id DESC"
+        )
+        answer_count = await conn.execute_query(
+            f"SELECT COUNT(answer.id) as cnt FROM answer \
+            JOIN question ON question.id = answer.question_id \
+            WHERE question.id = {id}"
+        )
     # update question views
     results.view += 1
     await results.save()
     return UJSONResponse(
         {
-            "question": question
+            "question": question,
+            "answers": answers,
+            "answer_count": answer_count
         }
     )
 
@@ -88,6 +101,33 @@ async def question_create(request):
         return Response(
             "Tags must be comma-separated",
             status_code=422
+        )
+
+
+async def answer_create(request):
+    """
+    Answer form
+    """
+    id = request.path_params["id"]
+    session_user = request.user.username
+    form = await request.json()
+    content = form["content"]
+    result = await User.get(username=session_user)
+    results = await Question.get(id=id)
+    if request.method == "POST":
+        query = Answer(
+            content=content,
+            created=datetime.datetime.now(),
+            answer_like=0,
+            is_accepted_answer=0,
+            question_id=results.id,
+            ans_user_id=result.id,
+        )
+        await query.save()
+        results.answer_count += 1
+        await results.save()
+        return RedirectResponse(
+            url="/questions", status_code=302
         )
 
 

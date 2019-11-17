@@ -36,17 +36,64 @@
       &ensp;
       <hr />
     </div>
+    <div class="col-md-8 offset-md-2">
+      <span v-if="!isLoggedIn">*Must be logged in to post answer</span>
+      <b-form @submit.prevent="create" v-else class="w-100">
+        <div class="form-group">
+          <b-form-textarea
+            id="content"
+            v-model="content"
+            name="content"
+            class="form-control"
+            placeholder="Answer..."
+            rows="5"
+            max-rows="10"
+            :class="{ 'is-invalid': $v.content.$error }"
+          ></b-form-textarea>
+          <div v-if="$v.content.$error" class="invalid-feedback">
+            <span v-if="!$v.content.required">Content is required</span>
+          </div>
+        </div>
+        <div class="form-group">
+          <button class="btn btn-primary">Submit</button>
+        </div>
+      </b-form>
+      <br />
+      <br />
+      <h3 class="float-left">{{ answer_count[0].cnt }} answer(s)</h3>
+      <br />
+      <hr />
+      <div v-for="(item, index) in answers" :key="index">
+        <span>
+          answered on
+          <i>{{ item.created | dateFormat }}</i> by
+          <b>{{ item.username }}</b>
+          <b></b>
+        </span>
+        <hr />
+        <p class="mb-1">{{ item.content }}</p>
+        <hr />
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
+import { required } from "vuelidate/lib/validators";
 
 export default {
   data() {
     return {
+      content: "",
+      answers: [],
+      answer_count: {},
       question: {}
     };
+  },
+  validations: {
+    content: { required }
   },
   filters: {
     dateFormat: function(value) {
@@ -66,6 +113,8 @@ export default {
         .get(path)
         .then(res => {
           this.question = res.data.question;
+          this.answers = res.data.answers;
+          this.answer_count = res.data.answer_count;
         })
         .catch(error => {
           // eslint-disable-next-line
@@ -74,7 +123,39 @@ export default {
     },
     splitTags(value) {
       return value.split(",");
+    },
+    create: function() {
+      let data = {
+        id: this.qid,
+        content: this.content
+      };
+      this.$v.$touch();
+      if (this.$v.$invalid) {
+        return;
+      }
+      const path =
+        "http://localhost:8000/questions/answer-create/" + this.question[0].id;
+      axios
+        .post(path, data)
+        .then(res => {
+          this.getQuestion();
+          this.data = res.data;
+          this.$router.push(
+            "/questions/" +
+              this.$route.params.id +
+              "/" +
+              this.$route.params.slug
+          );
+        })
+        .catch(err => {
+          this.message = err.response.data;
+          this.showMessage = true;
+          this.showDismissibleAlert = true;
+        });
     }
+  },
+  computed: {
+    ...mapGetters(["isLoggedIn", "authUser"])
   },
   created() {
     this.getQuestion();

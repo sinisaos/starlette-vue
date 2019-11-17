@@ -3,6 +3,7 @@ from questions.views import (
     questions_all,
     question,
     question_create,
+    answer_create,
     tags
 )
 
@@ -15,4 +16,6 @@ questions_routes = Router([
     Route("/create", endpoint=question_create,
           methods=["GET", "POST"], name="question_create"),
     Route("/tags/{tag:str}", endpoint=tags, methods=["GET"], name="tags"),
+    Route("/answer-create/{id:int}", endpoint=answer_create,
+          methods=["POST"], name="answer_create"),
 ])

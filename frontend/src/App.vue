@@ -23,18 +23,12 @@
           <b-nav-item-dropdown v-if="isLoggedIn" right>
             <!-- Using 'button-content' slot -->
             <template v-slot:button-content>
-              <em>Hello {{ authUser[0].username }}</em>
+              <em>Hello {{ token }}</em>
             </template>
             <!-- change this line to set another authUser.username as admin user -->
-            <b-dropdown-item
-              v-if="isLoggedIn && authUser[0].username == 'admin'"
-              to="/dashboard"
-            >Dashboard</b-dropdown-item>
+            <b-dropdown-item v-if="isLoggedIn && token == 'admin'" to="/dashboard">Dashboard</b-dropdown-item>
             <!-- change this line to set another authUser.username as admin user -->
-            <b-dropdown-item
-              v-if="isLoggedIn && authUser[0].username != 'admin'"
-              to="/profile"
-            >Profile</b-dropdown-item>
+            <b-dropdown-item v-if="isLoggedIn && token != 'admin'" to="/profile">Profile</b-dropdown-item>
             <b-dropdown-item @click="logout">Logout</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -48,8 +42,15 @@
 import { mapGetters } from "vuex";
 
 export default {
+  data() {
+    return {
+      get token() {
+        return localStorage.getItem("token") || 0;
+      }
+    };
+  },
   computed: {
-    ...mapGetters(["isLoggedIn", "authUser"])
+    ...mapGetters(["isLoggedIn"])
   },
   methods: {
     logout: function() {
