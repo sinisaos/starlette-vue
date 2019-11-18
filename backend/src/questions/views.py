@@ -181,3 +181,20 @@ async def tags(request):
             "questions": questions
         }
     )
+
+
+async def tags_categories(request):
+    """
+    Tags categories
+    """
+    # raw sql to use SQL GROUP BY
+    async with in_transaction() as conn:
+        results = await conn.execute_query(
+            "SELECT DISTINCT name, COUNT(name) as cnt FROM tag \
+            GROUP BY name ORDER BY name"
+        )
+    return UJSONResponse(
+        {
+            "results": results
+        }
+    )
