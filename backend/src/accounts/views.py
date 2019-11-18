@@ -69,7 +69,7 @@ async def login(request):
         results = await User.get(username=username)
         hashed_password = results.password
         valid_password = check_password(password, hashed_password)
-        if not valid_password:
+        if not valid_password or results.username != username:
             response = Response(
                 "Invalid username or password!",
                 status_code=422

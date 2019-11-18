@@ -24,6 +24,10 @@
           <b>{{ item.username }}</b>
           <b></b>
         </span>
+        <span
+          v-if="item.accepted_answer"
+          class="badge badge-badge-pill-lg badge-success float-right"
+        >Solved</span>
         <hr />
         <p class="mb-1">{{ item.content }}</p>
         <br />
@@ -48,6 +52,7 @@
           title="Likes"
         >&ensp;{{ item.question_like }}</i>
         &ensp;
+        <br />
         <hr />
       </div>
     </paginate>

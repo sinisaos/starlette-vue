@@ -161,6 +161,20 @@ async def answer_like(request):
     )
 
 
+@requires("authenticated")
+async def answer_accept(request):
+    id = request.path_params["id"]
+    result = await Answer.get(id=id)
+    question = await Question.get(id=result.question_id)
+    result.is_accepted_answer = 1
+    await result.save()
+    question.accepted_answer = 1
+    await question.save()
+    return RedirectResponse(
+        url="/questions", status_code=302
+    )
+
+
 async def tags(request):
     """
     All tags

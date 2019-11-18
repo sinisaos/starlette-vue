@@ -102,6 +102,24 @@
           <i class="fa fa-thumbs-up" aria-hidden="true" title="Answer likes"></i>
           &ensp;{{ item.answer_like }}&ensp;
         </form>
+        <div>
+          <div
+            v-if="token == question[0].username && question[0].accepted_answer == 0 && item.is_accepted_answer == 0"
+          >
+            <form @click="answerAccept(item.id)" class="btn btn-success float-left">
+              Accept
+              Answer
+            </form>
+            <br />
+          </div>
+          <div v-else-if="question[0].username == token && item.is_accepted_answer == 1">
+            <span class="badge badge-badge-pill badge-success float-left">Accepted answer</span>
+          </div>
+          <div v-else-if="item.is_accepted_answer == 1">
+            <span class="badge badge-badge-pill badge-success float-left">Accepted answer</span>
+          </div>
+          <div v-else></div>
+        </div>
         <br />
         <hr />
       </div>
@@ -120,7 +138,10 @@ export default {
       content: "",
       answers: [],
       answer_count: {},
-      question: {}
+      question: {},
+      get token() {
+        return localStorage.getItem("token") || 0;
+      }
     };
   },
   validations: {
@@ -197,6 +218,13 @@ export default {
         this.data = res.data;
         this.getQuestion();
       });
+    },
+    answerAccept(id) {
+      const path = "http://localhost:8000/questions/answer_accept/" + id;
+      axios.post(path).then(res => {
+        this.data = res.data;
+        this.getQuestion();
+      });
     }
   },
   computed: {
@@ -204,6 +232,9 @@ export default {
   },
   created() {
     this.getQuestion();
+  },
+  mounted() {
+    this.answersToShow = 3;
   }
 };
 </script>

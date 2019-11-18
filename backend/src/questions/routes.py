@@ -6,6 +6,7 @@ from questions.views import (
     question_create,
     answer_create,
     answer_like,
+    answer_accept,
     tags,
     tags_categories
 )
@@ -27,4 +28,6 @@ questions_routes = Router([
           methods=["POST"], name="answer_create"),
     Route("/answer-like/{id:int}", endpoint=answer_like,
           methods=["POST"], name="answer_like"),
+    Route("/answer_accept/{id:int}", endpoint=answer_accept,
+          methods=["POST"], name="answer_accept"),
 ])
