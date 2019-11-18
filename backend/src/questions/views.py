@@ -65,6 +65,20 @@ async def question(request):
 
 
 @requires("authenticated")
+async def question_like(request):
+    id = request.path_params["id"]
+    results = await Question.get(id=id)
+    # update question likes and decrease question views
+    # to avoid duplication of question views
+    results.question_like += 1
+    results.view -= 1
+    await results.save()
+    return RedirectResponse(
+        url="/questions", status_code=302
+    )
+
+
+@requires("authenticated")
 async def question_create(request):
     """
     Question form
@@ -129,6 +143,22 @@ async def answer_create(request):
         return RedirectResponse(
             url="/questions", status_code=302
         )
+
+
+@requires("authenticated")
+async def answer_like(request):
+    id = request.path_params["id"]
+    result = await Answer.get(id=id)
+    question = await Question.get(id=result.question_id)
+    # update answer likes and decrease question views
+    # to avoid duplication of question views
+    result.answer_like += 1
+    await result.save()
+    question.view -= 1
+    await question.save()
+    return RedirectResponse(
+        url="/questions", status_code=302
+    )
 
 
 async def tags(request):

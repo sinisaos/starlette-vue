@@ -20,20 +20,29 @@
           class="btn btn-primary"
         >{{ tag }}</router-link>
       </div>
+      <router-link
+        v-if="!isLoggedIn"
+        to="/login"
+        class="float-right"
+        style="color:#33cc33;cursor:pointer;"
+      >
+        <i
+          class="fa fa-thumbs-up"
+          aria-hidden="true"
+          title="Question likes"
+        >&ensp;{{ question[0].question_like }}&ensp;</i>
+      </router-link>
+      <form
+        method="POST"
+        v-else
+        @click="questionLike(question[0].id)"
+        class="float-right"
+        style="color:#33cc33; cursor:pointer;"
+      >
+        <i class="fa fa-thumbs-up" aria-hidden="true" title="Question likes"></i>
+        &ensp;{{ question[0].question_like }}&ensp;
+      </form>
       <br />
-      <br />
-      <i class="fa fa-eye" aria-hidden="true" title="Views">&ensp;{{ question[0].view }}</i>&ensp;
-      <i
-        class="fa fa-comment"
-        aria-hidden="true"
-        title="Answers"
-      >&ensp;{{ question[0].answer_count }}</i>&ensp;
-      <i
-        class="fa fa-thumbs-up"
-        aria-hidden="true"
-        title="Likes"
-      >&ensp;{{ question[0].question_like }}</i>
-      &ensp;
       <hr />
     </div>
     <div class="col-md-8 offset-md-2">
@@ -65,13 +74,35 @@
       <hr />
       <div v-for="(item, index) in answers" :key="index">
         <span>
-          answered on
+          Answered on
           <i>{{ item.created | dateFormat }}</i> by
           <b>{{ item.username }}</b>
-          <b></b>
+          <br />
+          <br />
         </span>
-        <hr />
         <p class="mb-1">{{ item.content }}</p>
+        <router-link
+          v-if="!isLoggedIn"
+          to="/login"
+          class="float-right"
+          style="color:#33cc33; cursor:pointer;"
+        >
+          <i
+            class="fa fa-thumbs-up"
+            aria-hidden="true"
+            title="Answer likes"
+          >&ensp;{{ item.answer_like }}&ensp;</i>
+        </router-link>
+        <form
+          v-else
+          @click="answerLike(item.id)"
+          class="float-right"
+          style="color:#33cc33; cursor:pointer;"
+        >
+          <i class="fa fa-thumbs-up" aria-hidden="true" title="Answer likes"></i>
+          &ensp;{{ item.answer_like }}&ensp;
+        </form>
+        <br />
         <hr />
       </div>
     </div>
@@ -152,6 +183,20 @@ export default {
           this.showMessage = true;
           this.showDismissibleAlert = true;
         });
+    },
+    questionLike(id) {
+      const path = "http://localhost:8000/questions/question-like/" + id;
+      axios.post(path).then(res => {
+        this.data = res.data;
+        this.getQuestion();
+      });
+    },
+    answerLike(id) {
+      const path = "http://localhost:8000/questions/answer-like/" + id;
+      axios.post(path).then(res => {
+        this.data = res.data;
+        this.getQuestion();
+      });
     }
   },
   computed: {
