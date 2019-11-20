@@ -1,6 +1,7 @@
 from starlette.routing import Route, Router
 from questions.views import (
     questions_all,
+    questions_unsolved,
     question,
     question_like,
     question_create,
@@ -15,6 +16,8 @@ from questions.views import (
 questions_routes = Router([
     Route("/", endpoint=questions_all,
           methods=["GET"], name="questions_all"),
+    Route("/unsolved", endpoint=questions_unsolved,
+          methods=["GET"], name="questions_unsolved"),
     Route("/{id:int}/{slug:str}", endpoint=question,
           methods=["GET", "POST"], name="question"),
     Route("/create", endpoint=question_create,

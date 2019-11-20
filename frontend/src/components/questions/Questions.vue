@@ -6,6 +6,14 @@
         <i class="fa fa-search errspan" aria-hidden="true"></i>
       </div>
     </div>
+    <div class="col-md-8 offset-md-2">
+      <button class="btn btn-link" @click="getQuestions">All questions</button>
+      <button class="btn btn-link" @click="getQuestionsUnsolved">Unsolved</button>
+      <button class="btn btn-link" @click="sortOldest">Oldest</button>
+      <button class="btn btn-link" @click="sortNewest">Newest</button>
+      <button class="btn btn-link" @click="sortMostViewed">Most viewed</button>
+      <button class="btn btn-link" @click="sortMostLiked">Most popular</button>
+    </div>
     <br />
     <paginate name="questions" :list="filterQuestions" tag="div">
       <div
@@ -107,8 +115,34 @@ export default {
           console.error(error);
         });
     },
+    getQuestionsUnsolved() {
+      const path = "http://localhost:8000/questions/unsolved";
+      axios
+        .get(path)
+        .then(res => {
+          this.questions = res.data.questions;
+        })
+        .catch(error => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+    },
     splitTags(value) {
       return value.split(",");
+    },
+    sortOldest() {
+      this.questions.sort((a, b) => (a.id > b.id ? 1 : -1));
+    },
+    sortNewest() {
+      this.questions.sort((a, b) => (a.id < b.id ? 1 : -1));
+    },
+    sortMostViewed() {
+      this.questions.sort((a, b) => (a.view < b.view ? 1 : -1));
+    },
+    sortMostLiked() {
+      this.questions.sort((a, b) =>
+        a.question_like < b.question_like ? 1 : -1
+      );
     }
   },
   created() {

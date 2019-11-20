@@ -27,6 +27,23 @@ async def questions_all(request):
     )
 
 
+async def questions_unsolved(request):
+    async with in_transaction() as conn:
+        questions = await conn.execute_query(
+            "SELECT question.*, user.username, GROUP_CONCAT(tag.name) as tags \
+            FROM question JOIN user ON user.id=question.user_id \
+            LEFT JOIN question_tag ON question.id = question_tag.question_id \
+            LEFT JOIN tag ON question_tag.tag_id = tag.id \
+            WHERE question.accepted_answer = 0 \
+            GROUP BY question.id ORDER BY question.id DESC"
+        )
+    return UJSONResponse(
+        {
+            "questions": questions
+        }
+    )
+
+
 async def question(request):
     """
     Single question

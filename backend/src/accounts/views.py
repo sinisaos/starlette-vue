@@ -10,7 +10,6 @@ from models import (
     hash_password,
     ADMIN
 )
-from collections import namedtuple
 
 
 async def register(request):
