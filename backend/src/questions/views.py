@@ -135,6 +135,65 @@ async def question_create(request):
         )
 
 
+async def question_edit(request):
+    """
+    Question edit form
+    """
+    id = request.path_params["id"]
+    session_user = request.user.username
+    results = await User.get(username=session_user)
+    question = await Question.get(id=id)
+    form = await request.json()
+    title = form["title"]
+    content = form["content"]
+    query = Question(
+        id=question.id,
+        title=title,
+        slug="-".join(title.lower().split()),
+        content=content,
+        created=question.created,
+        view=question.view,
+        question_like=question.question_like,
+        answer_count=question.answer_count,
+        accepted_answer=question.accepted_answer,
+        user_id=results.id,
+    )
+    await query.save()
+    return RedirectResponse(url="/questions", status_code=302)
+
+
+async def questions_user(request):
+    id = request.path_params["id"]
+    async with in_transaction() as conn:
+        questions = await conn.execute_query(
+            f"SELECT question.*, user.username \
+            FROM question JOIN user ON user.id=question.user_id \
+            WHERE user.username = '{id}' ORDER BY question.id DESC"
+        )
+    return UJSONResponse(
+        {
+            "questions": questions
+        }
+    )
+
+
+async def question_delete(request):
+    """
+    Delete question
+    """
+    id = request.path_params["id"]
+    async with in_transaction() as conn:
+        await conn.execute_query(
+            f"DELETE FROM tag WHERE tag.id IN \
+                (SELECT question_tag.tag_id FROM question \
+                JOIN question_tag ON question_tag.question_id = question.id \
+                WHERE question.id={id})"
+        )
+    await Question.get(id=id).delete()
+    response = RedirectResponse(url="/", status_code=302)
+    return response
+
+
 async def answer_create(request):
     """
     Answer form
@@ -190,6 +249,57 @@ async def answer_accept(request):
     return RedirectResponse(
         url="/questions", status_code=302
     )
+
+
+async def answers_user(request):
+    id = request.path_params["id"]
+    async with in_transaction() as conn:
+        answers = await conn.execute_query(
+            f"SELECT answer.*, user.username \
+            FROM answer JOIN user ON user.id=answer.ans_user_id \
+            WHERE user.username = '{id}' ORDER BY answer.id DESC"
+        )
+    return UJSONResponse(
+        {
+            "answers": answers
+        }
+    )
+
+
+async def answer_edit(request):
+    """
+    Answer edit form
+    """
+    id = request.path_params["id"]
+    answer = await Answer.get(id=id)
+    form = await request.json()
+    content = form["content"]
+    query = Answer(
+        id=answer.id,
+        content=content,
+        created=answer.created,
+        answer_like=answer.answer_like,
+        is_accepted_answer=answer.is_accepted_answer,
+        question_id=answer.question_id,
+        ans_user_id=answer.ans_user_id,
+    )
+    await query.save()
+    return RedirectResponse(url="/questions", status_code=302)
+
+
+async def answer_delete(request):
+    """
+    Delete answer
+    """
+    id = request.path_params["id"]
+    answer = await Answer.get(id=id)
+    results = await Question.get(id=answer.question_id)
+    # decrease question answer count
+    results.answer_count -= 1
+    await results.save()
+    await Answer.get(id=id).delete()
+    response = RedirectResponse(url="/", status_code=302)
+    return response
 
 
 async def tags(request):

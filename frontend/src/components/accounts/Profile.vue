@@ -1,50 +1,71 @@
 <template>
   <div class="container">
-    <h2>Profile page</h2>
-    <b-list-group>
-      <b-list-group-item>
-        <span class="float-left">
-          <strong>Username</strong>
-        </span>
-        <span class="float-right">{{ authUser[0].username }}</span>
-      </b-list-group-item>
-      <b-list-group-item>
-        <span class="float-left">
-          <strong>Email</strong>
-        </span>
-        <span class="float-right">{{ authUser[0].email }}</span>
-      </b-list-group-item>
-      <b-list-group-item>
-        <span class="float-left">
-          <strong>Joined</strong>
-        </span>
-        <span class="float-right">{{ authUser[0].joined | dateFormat }}</span>
-      </b-list-group-item>
-      <b-list-group-item>
-        <span class="float-left">
-          <strong>
-            Last
-            login
-          </strong>
-        </span>
-        <span class="float-right">{{ authUser[0].last_login | dateFormat }}</span>
-      </b-list-group-item>
-      <b-list-group-item>
-        <span class="float-left">
-          <strong>
-            Login
-            count
-          </strong>
-        </span>
-        <span class="float-right">{{ authUser[0].login_count }}</span>
-      </b-list-group-item>
-    </b-list-group>
-    <br />
-    <button
-      class="btn btn-danger float-right"
-      v-if="authUser[0].login_count > 1"
-      @click="delete_user(authUser[0].id)"
-    >Delete account</button>
+    <div class="row">
+      <div class="col-md-3">
+        <div class="list-group">
+          <router-link
+            :to="{ name: 'profile'}"
+            class="list-group-item list-group-item-action"
+          >Profile</router-link>
+          <router-link
+            :to="{ name: 'profileQuestions'}"
+            class="list-group-item list-group-item-action"
+          >Questions</router-link>
+          <router-link
+            :to="{ name: 'profileAnswers'}"
+            class="list-group-item list-group-item-action"
+          >Answers</router-link>
+        </div>
+        <br />
+        <br />
+      </div>
+      <div class="col-md-9">
+        <b-list-group>
+          <b-list-group-item>
+            <span class="float-left">
+              <strong>Username</strong>
+            </span>
+            <span class="float-right">{{ authUser[0].username }}</span>
+          </b-list-group-item>
+          <b-list-group-item>
+            <span class="float-left">
+              <strong>Email</strong>
+            </span>
+            <span class="float-right">{{ authUser[0].email }}</span>
+          </b-list-group-item>
+          <b-list-group-item>
+            <span class="float-left">
+              <strong>Joined</strong>
+            </span>
+            <span class="float-right">{{ authUser[0].joined | dateFormat }}</span>
+          </b-list-group-item>
+          <b-list-group-item>
+            <span class="float-left">
+              <strong>
+                Last
+                login
+              </strong>
+            </span>
+            <span class="float-right">{{ authUser[0].last_login | dateFormat }}</span>
+          </b-list-group-item>
+          <b-list-group-item>
+            <span class="float-left">
+              <strong>
+                Login
+                count
+              </strong>
+            </span>
+            <span class="float-right">{{ authUser[0].login_count }}</span>
+          </b-list-group-item>
+        </b-list-group>
+        <br />
+        <button
+          class="btn btn-danger float-right"
+          v-if="authUser[0].login_count > 1"
+          @click="delete_user(authUser[0].id)"
+        >Delete account</button>
+      </div>
+    </div>
   </div>
 </template>
 

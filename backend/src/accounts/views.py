@@ -3,6 +3,7 @@ from starlette.responses import (
     Response,
     RedirectResponse,
 )
+from tortoise.transactions import in_transaction
 from models import (
     User,
     check_password,
@@ -100,6 +101,13 @@ async def delete(request):
     Delete user
     """
     id = request.path_params["id"]
+    async with in_transaction() as conn:
+        await conn.execute_query(
+            f"DELETE FROM tag WHERE tag.id IN \
+            (SELECT question_tag.tag_id FROM question \
+            JOIN question_tag ON question_tag.question_id = question.id \
+            JOIN user ON user.id = question.user_id WHERE user.id = {id})"
+        )
     await User.get(id=id).delete()
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("jwt")

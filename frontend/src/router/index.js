@@ -11,6 +11,10 @@ import Question from '../components/questions/Question.vue'
 import CreateQuestion from '../components/questions/CreateQuestion.vue'
 import QuestionsByTag from '../components/questions/QuestionsByTag.vue'
 import Categories from '../components/questions/Categories.vue'
+import ProfileQuestions from '../components/questions/ProfileQuestions.vue'
+import ProfileQuestionsEdit from '../components/questions/ProfileQuestionsEdit.vue'
+import ProfileAnswers from '../components/questions/ProfileAnswers.vue'
+import ProfileAnswersEdit from '../components/questions/ProfileAnswersEdit.vue'
 
 Vue.use(Router)
 
@@ -41,9 +45,41 @@ let router = new Router({
       }
     },
     {
-      path: '/profile',
+      path: '/profile/:name',
       name: 'profile',
       component: Profile,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:name/questions',
+      name: 'profileQuestions',
+      component: ProfileQuestions,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:name/questions/question-edit/:id/:title/:content',
+      name: 'profileQuestionsEdit',
+      component: ProfileQuestionsEdit,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:name/questions/answer-edit/:id//:content',
+      name: 'profileAnswersEdit',
+      component: ProfileAnswersEdit,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/profile/:name/answers',
+      name: 'profileAnswers',
+      component: ProfileAnswers,
       meta: {
         requiresAuth: true
       }

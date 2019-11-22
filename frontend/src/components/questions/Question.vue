@@ -232,9 +232,6 @@ export default {
   },
   created() {
     this.getQuestion();
-  },
-  mounted() {
-    this.answersToShow = 3;
   }
 };
 </script>

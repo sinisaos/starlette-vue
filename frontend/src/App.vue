@@ -30,7 +30,10 @@
               <!-- change this line to set another authUser.username as admin user -->
               <b-dropdown-item v-if="isLoggedIn && token == 'admin'" to="/dashboard">Dashboard</b-dropdown-item>
               <!-- change this line to set another authUser.username as admin user -->
-              <b-dropdown-item v-if="isLoggedIn && token != 'admin'" to="/profile">Profile</b-dropdown-item>
+              <b-dropdown-item
+                v-if="isLoggedIn && token != 'admin'"
+                :to="{ name: 'profile', params: { name: token }}"
+              >Profile</b-dropdown-item>
               <b-dropdown-item @click="logout">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
