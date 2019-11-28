@@ -2,23 +2,23 @@
   <div class="container">
     <div class="col-md-8 offset-md-2">
       <h4>
-        <b>{{ question[0].title }}</b>
+        <b>{{ question.title }}</b>
       </h4>
       <span>
         asked on
-        <i>{{ question[0].created | dateFormat }}</i> by
-        <b>{{ question[0].username }}</b>
+        <i>{{ question.created | dateFormat }}</i> by
+        <b>{{ question.user.username }}</b>
         <b></b>
       </span>
       <hr />
-      <p class="mb-1">{{ question[0].content }}</p>
+      <p class="mb-1">{{ question.content }}</p>
       <br />
-      <div class="btn-group" v-for="(tag,idx) in splitTags(question[0].tags)" :key="idx">
+      <div class="btn-group" v-for="(tag,idx) in question.tags" :key="idx">
         <router-link
-          :to="{ name: 'questionsByTag', params: { name: tag }}"
+          :to="{ name: 'questionsByTag', params: { name: tag.name }}"
           tag="button"
           class="btn btn-primary"
-        >{{ tag }}</router-link>
+        >{{ tag.name }}</router-link>
       </div>
       <router-link
         v-if="!isLoggedIn"
@@ -30,17 +30,17 @@
           class="fa fa-thumbs-up"
           aria-hidden="true"
           title="Question likes"
-        >&ensp;{{ question[0].question_like }}&ensp;</i>
+        >&ensp;{{ question.question_like }}&ensp;</i>
       </router-link>
       <form
         method="POST"
         v-else
-        @click="questionLike(question[0].id)"
+        @click="questionLike(question.id)"
         class="float-right"
         style="color:#33cc33; cursor:pointer;"
       >
         <i class="fa fa-thumbs-up" aria-hidden="true" title="Question likes"></i>
-        &ensp;{{ question[0].question_like }}&ensp;
+        &ensp;{{ question.question_like }}&ensp;
       </form>
       <br />
       <hr />
@@ -69,14 +69,14 @@
       </b-form>
       <br />
       <br />
-      <h3 class="float-left">{{ answer_count[0].cnt }} answer(s)</h3>
+      <h3 class="float-left">{{ answerCount }} answer(s)</h3>
       <br />
       <hr />
       <div v-for="(item, index) in answers" :key="index">
         <span>
           Answered on
           <i>{{ item.created | dateFormat }}</i> by
-          <b>{{ item.username }}</b>
+          <b>{{ item.ans_user.username }}</b>
           <br />
           <br />
         </span>
@@ -104,7 +104,7 @@
         </form>
         <div>
           <div
-            v-if="token == question[0].username && question[0].accepted_answer == 0 && item.is_accepted_answer == 0"
+            v-if="token == question.user.username && question.accepted_answer == 0 && item.is_accepted_answer == 0"
           >
             <form @click="answerAccept(item.id)" class="btn btn-success float-left">
               Accept
@@ -112,7 +112,7 @@
             </form>
             <br />
           </div>
-          <div v-else-if="question[0].username == token && item.is_accepted_answer == 1">
+          <div v-else-if="question.user.username == token && item.is_accepted_answer == 1">
             <span class="badge badge-badge-pill badge-success float-left">Accepted answer</span>
           </div>
           <div v-else-if="item.is_accepted_answer == 1">
@@ -137,7 +137,7 @@ export default {
     return {
       content: "",
       answers: [],
-      answer_count: {},
+      answerCount: "",
       question: {},
       get token() {
         return localStorage.getItem("token") || 0;
@@ -149,8 +149,7 @@ export default {
   },
   filters: {
     dateFormat: function(value) {
-      let sec = value * 1000;
-      let date = new Date(sec);
+      let date = new Date(value);
       return date.toString().slice(4, 24);
     }
   },
@@ -166,17 +165,14 @@ export default {
         .then(res => {
           this.question = res.data.question;
           this.answers = res.data.answers;
-          this.answer_count = res.data.answer_count;
+          this.answerCount = res.data.answer_count;
         })
         .catch(error => {
           // eslint-disable-next-line
           console.error(error);
         });
     },
-    splitTags(value) {
-      return value.split(",");
-    },
-    create: function() {
+    create() {
       let data = {
         id: this.qid,
         content: this.content
@@ -186,7 +182,7 @@ export default {
         return;
       }
       const path =
-        "http://localhost:8000/questions/answer-create/" + this.question[0].id;
+        "http://localhost:8000/questions/answer-create/" + this.question.id;
       axios
         .post(path, data)
         .then(res => {

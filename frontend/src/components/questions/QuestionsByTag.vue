@@ -18,7 +18,7 @@
         <span>
           asked on
           <i>{{ item.created | dateFormat }}</i> by
-          <b>{{ item.username }}</b>
+          <b>{{ item.user.username }}</b>
           <b></b>
         </span>
         <hr />
@@ -44,8 +44,7 @@ export default {
   },
   filters: {
     dateFormat: function(value) {
-      let sec = value * 1000;
-      let date = new Date(sec);
+      let date = new Date(value);
       return date.toString().slice(4, 24);
     }
   },

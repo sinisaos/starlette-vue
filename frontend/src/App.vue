@@ -17,7 +17,6 @@
 
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
-            <b-nav-item to="/categories">Tags</b-nav-item>
             <b-nav-item to="/questions">Questions</b-nav-item>
             <b-nav-item to="/login" v-if="!isLoggedIn">Login</b-nav-item>
             <b-nav-item to="/register" v-if="!isLoggedIn">Register</b-nav-item>
@@ -71,5 +70,9 @@ export default {
 <style lang="css">
 .bg-dark {
   margin-top: -30px;
+}
+.ml-auto li {
+  display: inline-block;
+  margin: 2px;
 }
 </style>

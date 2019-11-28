@@ -8,6 +8,7 @@ from starlette.authentication import (
     SimpleUser,
     AuthCredentials,
 )
+from marshmallow import Schema, fields as flds
 from settings import SECRET_KEY
 
 # change this line to set another user as admin user
@@ -64,6 +65,55 @@ class Tag(Model):
 
     def __str__(self):
         return self.name
+
+
+class UserSchema(Schema):
+    id = flds.Int()
+    username = flds.Str()
+    email = flds.Str()
+    joined = flds.DateTime()
+    last_login = flds.DateTime()
+    login_count = flds.Int()
+    password = flds.Str()
+
+
+class TagSchema(Schema):
+    id = flds.Int()
+    name = flds.Str()
+
+
+class QuestionSchema(Schema):
+    id = flds.Int()
+    title = flds.Str()
+    slug = flds.Str()
+    content = flds.Str()
+    created = flds.DateTime()
+    view = flds.Int()
+    question_like = flds.Int()
+    answer_count = flds.Int()
+    accepted_answer = flds.Bool()
+    tags = flds.Nested(
+        TagSchema, many=True, dump_only=True)
+    user = flds.Nested(
+        UserSchema, dump_only=True, only=['username'])
+
+
+class AnswerSchema(Schema):
+    id = flds.Int()
+    content = flds.Str()
+    created = flds.DateTime()
+    answer_like = flds.Int()
+    is_accepted_answer = flds.Bool()
+    ans_user = flds.Nested(
+        UserSchema, dump_only=True, only=['username'])
+    question = flds.Nested(
+        QuestionSchema, dump_only=True, only=["id"])
+
+
+# model schemas
+questions_schema = QuestionSchema(many=True)
+answers_schema = AnswerSchema(many=True)
+question_schema = QuestionSchema()
 
 
 class UserAuthentication(AuthenticationBackend):

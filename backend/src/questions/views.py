@@ -4,22 +4,61 @@ from starlette.responses import (
     RedirectResponse,
     Response
 )
-from starlette.authentication import requires
 from tortoise.transactions import in_transaction
-from models import User, Question, Tag, Answer
+from models import (
+    User,
+    Question,
+    Tag,
+    Answer,
+    questions_schema,
+    answers_schema,
+    question_schema,
+)
 
 
 async def questions_all(request):
-    # i don't now how to serialize fk relations with .prefech_related
-    # than i use raw sql
+    '''
+    ### i don't now how to serialize fk relations with
+    .prefech_related() 
+    using .values() is ok but can get m2m relations
+    like GROUP BY raw SQL
+
+    questions = await Question.all().values(
+        'id',
+        'title',
+        'content',
+        'created',
+        'view',
+        'question_like',
+        'answer_count',
+        'accepted_answer',
+        'user__username',
+        'tags__name'# problem
+    )
+
+    ### than i use raw sql with transaction
+    but load test with Bombardier
+    give pymysql.err.OperationalError: (2013,
+    'Lost connection to MySQL server during query')
+
     async with in_transaction() as conn:
         questions = await conn.execute_query(
             "SELECT question.*, user.username, GROUP_CONCAT(tag.name) as tags \
             FROM question JOIN user ON user.id=question.user_id \
-            LEFT JOIN question_tag ON question.id = question_tag.question_id \
-            LEFT JOIN tag ON question_tag.tag_id = tag.id \
+            JOIN question_tag ON question.id = question_tag.question_id \
+            JOIN tag ON question_tag.tag_id = tag.id \
             GROUP BY question.id ORDER BY question.id DESC"
         )
+
+    ### SQLAlchemy doesn't have this problem
+
+    ### ended up using a Marshmallow for serilization
+    and it turned out just fine
+    '''
+    results = await Question.all().prefetch_related(
+        "user", "tags").order_by("-id")
+    # Serialize the queryset
+    questions = questions_schema.dump(results)
     return UJSONResponse(
         {
             "questions": questions
@@ -28,15 +67,10 @@ async def questions_all(request):
 
 
 async def questions_unsolved(request):
-    async with in_transaction() as conn:
-        questions = await conn.execute_query(
-            "SELECT question.*, user.username, GROUP_CONCAT(tag.name) as tags \
-            FROM question JOIN user ON user.id=question.user_id \
-            LEFT JOIN question_tag ON question.id = question_tag.question_id \
-            LEFT JOIN tag ON question_tag.tag_id = tag.id \
-            WHERE question.accepted_answer = 0 \
-            GROUP BY question.id ORDER BY question.id DESC"
-        )
+    results = await Question.filter(accepted_answer=0).prefetch_related(
+        "user", "tags").order_by("-id")
+    # Serialize the queryset
+    questions = questions_schema.dump(results)
     return UJSONResponse(
         {
             "questions": questions
@@ -49,39 +83,26 @@ async def question(request):
     Single question
     """
     id = request.path_params["id"]
-    results = await Question.get(id=id)
-    async with in_transaction() as conn:
-        question = await conn.execute_query(
-            f"SELECT question.*, user.username, GROUP_CONCAT(tag.name) as tags \
-            FROM question JOIN user ON user.id=question.user_id \
-            LEFT JOIN question_tag ON question.id = question_tag.question_id \
-            LEFT JOIN tag ON question_tag.tag_id = tag.id  \
-            WHERE question.id = {id} GROUP BY question.id"
-        )
-        answers = await conn.execute_query(
-            f"SELECT answer.*, user.username FROM answer \
-            JOIN user ON user.id=answer.ans_user_id \
-            JOIN question ON question.id = answer.question_id \
-            WHERE question.id = {id} ORDER BY answer.id DESC"
-        )
-        answer_count = await conn.execute_query(
-            f"SELECT COUNT(answer.id) as cnt FROM answer \
-            JOIN question ON question.id = answer.question_id \
-            WHERE question.id = {id}"
-        )
+    result = await Question.get(id=id).prefetch_related("user", "tags")
+    answers_result = (await Answer.all()
+                      .prefetch_related("ans_user")
+                      .filter(question__id=id)
+                      .order_by("-id"))
+    # Serialize the queryset
+    question = question_schema.dump(result)
+    answers = answers_schema.dump(answers_result)
     # update question views
-    results.view += 1
-    await results.save()
+    result.view += 1
+    await result.save()
     return UJSONResponse(
         {
             "question": question,
-            "answers": answers,
-            "answer_count": answer_count
+            'answers': answers,
+            "answer_count": len(answers)
         }
     )
 
 
-@requires("authenticated")
 async def question_like(request):
     id = request.path_params["id"]
     results = await Question.get(id=id)
@@ -95,7 +116,6 @@ async def question_like(request):
     )
 
 
-@requires("authenticated")
 async def question_create(request):
     """
     Question form
@@ -164,12 +184,12 @@ async def question_edit(request):
 
 async def questions_user(request):
     id = request.path_params["id"]
-    async with in_transaction() as conn:
-        questions = await conn.execute_query(
-            f"SELECT question.*, user.username \
-            FROM question JOIN user ON user.id=question.user_id \
-            WHERE user.username = '{id}' ORDER BY question.id DESC"
-        )
+    results = await User.get(username=id)
+    result = await Question.all().prefetch_related(
+        "user", "tags").filter(
+        user_id=results.id).order_by("-id")
+    # Serialize the queryset
+    questions = questions_schema.dump(result)
     return UJSONResponse(
         {
             "questions": questions
@@ -221,7 +241,6 @@ async def answer_create(request):
         )
 
 
-@requires("authenticated")
 async def answer_like(request):
     id = request.path_params["id"]
     result = await Answer.get(id=id)
@@ -237,7 +256,6 @@ async def answer_like(request):
     )
 
 
-@requires("authenticated")
 async def answer_accept(request):
     id = request.path_params["id"]
     result = await Answer.get(id=id)
@@ -253,12 +271,10 @@ async def answer_accept(request):
 
 async def answers_user(request):
     id = request.path_params["id"]
-    async with in_transaction() as conn:
-        answers = await conn.execute_query(
-            f"SELECT answer.*, user.username \
-            FROM answer JOIN user ON user.id=answer.ans_user_id \
-            WHERE user.username = '{id}' ORDER BY answer.id DESC"
-        )
+    results = await User.get(username=id)
+    result = await Answer.all().filter(ans_user_id=results.id)
+    # Serialize the queryset
+    answers = answers_schema.dump(result)
     return UJSONResponse(
         {
             "answers": answers
@@ -307,35 +323,16 @@ async def tags(request):
     All tags
     """
     tag = request.path_params["tag"]
-    async with in_transaction() as conn:
-        questions = await conn.execute_query(
-            f"SELECT question.title, question.created, question.id, \
-            question.slug, user.username \
-            FROM question JOIN user ON user.id=question.user_id \
-            LEFT JOIN question_tag ON question.id = question_tag.question_id \
-            LEFT JOIN tag ON question_tag.tag_id = tag.id \
-            WHERE tag.name=\"{tag}\" GROUP BY question.id \
-            ORDER BY question.id DESC"
-        )
+    result = (
+        await Question.all()
+        .prefetch_related("user", "tags")
+        .filter(tags__name=tag)
+        .order_by("-id")
+    )
+    # Serialize the queryset
+    questions = questions_schema.dump(result)
     return UJSONResponse(
         {
             "questions": questions
-        }
-    )
-
-
-async def tags_categories(request):
-    """
-    Tags categories
-    """
-    # raw sql to use SQL GROUP BY
-    async with in_transaction() as conn:
-        results = await conn.execute_query(
-            "SELECT DISTINCT name, COUNT(name) as cnt FROM tag \
-            GROUP BY name ORDER BY name"
-        )
-    return UJSONResponse(
-        {
-            "results": results
         }
     )

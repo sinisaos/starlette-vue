@@ -29,7 +29,7 @@
         <span>
           asked on
           <i>{{ item.created | dateFormat }}</i> by
-          <b>{{ item.username }}</b>
+          <b>{{ item.user.username }}</b>
           <b></b>
         </span>
         <span
@@ -39,12 +39,12 @@
         <hr />
         <p class="mb-1">{{ item.content }}</p>
         <br />
-        <div class="btn-group" v-for="(tag,idx) in splitTags(item.tags)" :key="idx">
+        <div class="btn-group" v-for="(tag,idx) in item.tags" :key="idx">
           <router-link
-            :to="{ name: 'questionsByTag', params: { name: tag }}"
+            :to="{ name: 'questionsByTag', params: { name: tag.name }}"
             tag="button"
             class="btn btn-primary"
-          >{{ tag }}</router-link>
+          >{{ tag.name }}</router-link>
         </div>
         <br />
         <br />
@@ -85,8 +85,7 @@ export default {
   },
   filters: {
     dateFormat: function(value) {
-      let sec = value * 1000;
-      let date = new Date(sec);
+      let date = new Date(value);
       return date.toString().slice(4, 24);
     }
   },
@@ -95,8 +94,9 @@ export default {
       return this.questions.filter(question => {
         return (
           question.title.toLowerCase().includes(this.search.toLowerCase()) ||
-          question.username.toLowerCase().includes(this.search.toLowerCase()) ||
-          question.tags.toLowerCase().includes(this.search.toLowerCase()) ||
+          question.user.username
+            .toLowerCase()
+            .includes(this.search.toLowerCase()) ||
           question.content.toLowerCase().includes(this.search.toLowerCase())
         );
       });
