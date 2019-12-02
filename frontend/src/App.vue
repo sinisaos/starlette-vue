@@ -17,6 +17,7 @@
 
           <!-- Right aligned nav items -->
           <b-navbar-nav class="ml-auto">
+            <b-nav-item to="/categories">Tags</b-nav-item>
             <b-nav-item to="/questions">Questions</b-nav-item>
             <b-nav-item to="/login" v-if="!isLoggedIn">Login</b-nav-item>
             <b-nav-item to="/register" v-if="!isLoggedIn">Register</b-nav-item>

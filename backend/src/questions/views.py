@@ -1,4 +1,5 @@
 import datetime
+import itertools as it
 from starlette.responses import (
     UJSONResponse,
     RedirectResponse,
@@ -19,7 +20,7 @@ from models import (
 async def questions_all(request):
     '''
     ### i don't now how to serialize fk relations with
-    .prefech_related() 
+    .prefetch.related()
     using .values() is ok but can get m2m relations
     like GROUP BY raw SQL
 
@@ -334,5 +335,21 @@ async def tags(request):
     return UJSONResponse(
         {
             "questions": questions
+        }
+    )
+
+
+async def tags_categories(request):
+    """
+    Tags categories
+    """
+    # use itertools.groupby to simulate SQL GROUP BY
+    results = await Tag.all().order_by("name").values("name")
+    categories_tags = [
+        (k, sum(1 for i in g)) for k, g in it.groupby(results)
+    ]
+    return UJSONResponse(
+        {
+            "categories_tags": categories_tags
         }
     )

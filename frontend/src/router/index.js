@@ -10,6 +10,7 @@ import Questions from '../components/questions/Questions.vue'
 import Question from '../components/questions/Question.vue'
 import CreateQuestion from '../components/questions/CreateQuestion.vue'
 import QuestionsByTag from '../components/questions/QuestionsByTag.vue'
+import Categories from '../components/questions/Categories.vue'
 import ProfileQuestions from '../components/questions/ProfileQuestions.vue'
 import ProfileQuestionsEdit from '../components/questions/ProfileQuestionsEdit.vue'
 import ProfileAnswers from '../components/questions/ProfileAnswers.vue'
@@ -105,6 +106,11 @@ let router = new Router({
       path: '/questions/tags/:name',
       name: 'questionsByTag',
       component: QuestionsByTag
+    },
+    {
+      path: '/categories',
+      name: 'categories',
+      component: Categories
     },
   ]
 })
