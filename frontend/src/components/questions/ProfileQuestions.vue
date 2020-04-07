@@ -59,7 +59,7 @@
             </table>
           </div>
         </paginate>
-        <ul class="pagination">
+        <ul class="pagination float-right">
           <paginate-links for="questions" :async="true" :limit="2" :show-step-links="true"></paginate-links>
         </ul>
       </div>
@@ -144,17 +144,5 @@ ul {
   padding: 0;
   cursor: pointer;
   border: 1px black;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-ul.paginate-links > li.active > a {
-  background-color: #007bff;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.25rem;
-  color: white;
 }
 </style>

@@ -1,4 +1,3 @@
-import uvicorn
 from starlette.applications import Starlette
 from starlette.responses import UJSONResponse
 from starlette.middleware.sessions import SessionMiddleware
@@ -7,7 +6,12 @@ from starlette.middleware.cors import CORSMiddleware
 from tortoise.contrib.starlette import register_tortoise
 from secure import SecureHeaders
 from settings import SECRET_KEY, DB_URI
-from models import UserAuthentication, User
+from accounts.models import (
+    UserAuthentication,
+    User,
+    users_schema,
+    user_schema
+)
 from accounts.routes import routes
 from questions.routes import questions_routes
 
@@ -35,10 +39,11 @@ app.add_middleware(
 async def index(request):
     token = request.cookies.get('jwt')
     auth_user = request.user.display_name
-    # use values() for serialization
-    results = await User.all().order_by('-id').values()
+    users = await User.all().order_by("-id")
+    results = users_schema.dump(users)
     try:
-        result = await User.get(username=auth_user).values()
+        user = await User.get(username=auth_user)
+        result = user_schema.dump(user)
         return UJSONResponse(
             {
                 "results": results,
@@ -66,9 +71,13 @@ async def set_secure_headers(request, call_next):
 
 
 register_tortoise(
-    app, db_url=DB_URI, modules={"models": ["models"]}, generate_schemas=True
+    app,
+    db_url=DB_URI,
+    modules={
+        "models": [
+            "accounts.models",
+            "questions.models"
+        ]
+    },
+    generate_schemas=True
 )
-
-
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)

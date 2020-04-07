@@ -4,7 +4,7 @@ from starlette.responses import (
     RedirectResponse,
 )
 from tortoise.transactions import in_transaction
-from models import (
+from accounts.models import (
     User,
     check_password,
     generate_jwt,

@@ -35,8 +35,7 @@ export default {
   // format date
   filters: {
     dateFormat: function(value) {
-      let sec = value * 1000;
-      let date = new Date(sec);
+      let date = new Date(value);
       return date.toString().slice(0, 24);
     }
   },

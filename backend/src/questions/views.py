@@ -6,8 +6,7 @@ from starlette.responses import (
     Response
 )
 from tortoise.transactions import in_transaction
-from models import (
-    User,
+from questions.models import (
     Question,
     Tag,
     Answer,
@@ -15,6 +14,7 @@ from models import (
     answers_schema,
     question_schema,
 )
+from accounts.models import User
 
 
 async def questions_all(request):

@@ -49,7 +49,7 @@
               </div>
             </div>
             <div class="form-group">
-              <input type="hidden" name="user" class="form-control" :value="authUser[0].username" />
+              <input type="hidden" name="user" class="form-control" :value="authUser.username" />
             </div>
             <div class="form-group">
               <button class="btn btn-primary">Submit</button>
