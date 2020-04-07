@@ -25,7 +25,7 @@
       </div>
     </paginate>
     <div class="col-md-8 offset-md-2">
-      <ul class="pagination">
+      <ul class="pagination float-right">
         <paginate-links for="questions" :async="true" :limit="2" :show-step-links="true"></paginate-links>
       </ul>
     </div>
