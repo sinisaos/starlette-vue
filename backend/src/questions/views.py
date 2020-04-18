@@ -60,6 +60,13 @@ async def questions_all(request):
         "user", "tags").order_by("-id")
     # Serialize the queryset
     questions = questions_schema.dump(results)
+    answer_count = [(
+        await Answer.all()
+        .prefetch_related("question")
+        .filter(question__id=row.id).count()
+    ) for row in results]
+    for item, x in zip(questions, answer_count):
+        item['answer_count'] = x
     return UJSONResponse(
         {
             "questions": questions
@@ -72,6 +79,32 @@ async def questions_unsolved(request):
         "user", "tags").order_by("-id")
     # Serialize the queryset
     questions = questions_schema.dump(results)
+    answer_count = [(
+        await Answer.all()
+        .prefetch_related("question")
+        .filter(question__id=row.id).count()
+    ) for row in results]
+    for item, x in zip(questions, answer_count):
+        item['answer_count'] = x
+    return UJSONResponse(
+        {
+            "questions": questions
+        }
+    )
+
+
+async def questions_solved(request):
+    results = await Question.filter(accepted_answer=1).prefetch_related(
+        "user", "tags").order_by("-id")
+    # Serialize the queryset
+    questions = questions_schema.dump(results)
+    answer_count = [(
+        await Answer.all()
+        .prefetch_related("question")
+        .filter(question__id=row.id).count()
+    ) for row in results]
+    for item, x in zip(questions, answer_count):
+        item['answer_count'] = x
     return UJSONResponse(
         {
             "questions": questions
@@ -313,6 +346,8 @@ async def answer_delete(request):
     results = await Question.get(id=answer.question_id)
     # decrease question answer count
     results.answer_count -= 1
+    if answer.is_accepted_answer:
+        results.accepted_answer = False
     await results.save()
     await Answer.get(id=id).delete()
     response = RedirectResponse(url="/", status_code=302)

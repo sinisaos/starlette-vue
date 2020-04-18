@@ -39,7 +39,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         commit('AUTH_REQUEST')
         axios({
-          url: 'http://localhost:8000/accounts/login',
+          url: '/accounts/login',
           data: user,
           method: 'POST'
         })
@@ -65,7 +65,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         commit('AUTH_REQUEST')
         axios({
-          url: 'http://localhost:8000/accounts/register',
+          url: '/accounts/register',
           data: user,
           method: 'POST'
         })
@@ -97,7 +97,7 @@ export default new Vuex.Store({
       return new Promise((resolve, reject) => {
         if (confirm("Are you sure you want to delete the account!"))
           axios({
-            url: 'http://localhost:8000/accounts/delete/' + state.token[0].id,
+            url: '/accounts/delete/' + state.token.id,
             data: user,
             method: 'GET'
           })

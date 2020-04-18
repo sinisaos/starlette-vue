@@ -8,9 +8,9 @@
     </div>
     <div class="col-md-8 offset-md-2" v-if="!search">
       <button class="btn btn-link" @click="getQuestions">All questions</button>
-      <button class="btn btn-link" @click="getQuestionsUnsolved">Unsolved</button>
+      <button class="btn btn-link" @click="getQuestionsUnsolved">Open</button>
+      <button class="btn btn-link" @click="getQuestionsSolved">Solved</button>
       <button class="btn btn-link" @click="sortOldest">Oldest</button>
-      <button class="btn btn-link" @click="sortNewest">Newest</button>
       <button class="btn btn-link" @click="sortMostViewed">Most viewed</button>
       <button class="btn btn-link" @click="sortMostLiked">Most popular</button>
     </div>
@@ -110,7 +110,20 @@ export default {
   },
   methods: {
     getQuestions() {
-      const path = "http://localhost:8000/questions";
+      const path = "/questions/";
+      axios
+        .get(path)
+        .then(res => {
+          this.questions = res.data.questions;
+          // eslint-disable-next-line
+        })
+        .catch(error => {
+          // eslint-disable-next-line
+          console.error(error);
+        });
+    },
+    getQuestionsUnsolved() {
+      const path = "/questions/unsolved";
       axios
         .get(path)
         .then(res => {
@@ -121,8 +134,8 @@ export default {
           console.error(error);
         });
     },
-    getQuestionsUnsolved() {
-      const path = "http://localhost:8000/questions/unsolved";
+    getQuestionsSolved() {
+      const path = "/questions/solved";
       axios
         .get(path)
         .then(res => {
@@ -138,9 +151,6 @@ export default {
     },
     sortOldest() {
       this.questions.sort((a, b) => (a.id > b.id ? 1 : -1));
-    },
-    sortNewest() {
-      this.questions.sort((a, b) => (a.id < b.id ? 1 : -1));
     },
     sortMostViewed() {
       this.questions.sort((a, b) => (a.view < b.view ? 1 : -1));
@@ -183,15 +193,15 @@ li {
 }
 
 ul.paginate-links {
-  border: 3.5px solid #ced4da;
+  border: 3.5px solid #007bff;
   border-radius: 0.25rem;
+  padding: 5px;
 }
 
 ul.paginate-links > li.active > a {
-  background-color: #ced4da;
-  padding: 0.375rem 0.75rem;
-  border-radius: 0.25rem;
+  background-color: #007bff;
+  padding: 0.45rem 0.85rem;
   color: white;
-  border: 1px solid #ced4da;
+  border: 1px solid #007bff;
 }
 </style>

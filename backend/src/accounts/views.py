@@ -108,6 +108,14 @@ async def delete(request):
             JOIN question_tag ON question_tag.question_id = question.id \
             JOIN user ON user.id = question.user_id WHERE user.id = {id})"
         )
+    async with in_transaction() as conn:
+        await conn.execute_query(
+            f"UPDATE question \
+            JOIN answer ON question.id = answer.question_id \
+            JOIN user on user.id = answer.ans_user_id \
+            SET question.accepted_answer = 0 \
+            WHERE user.id = {id} AND answer.is_accepted_answer = 1"
+        )
     await User.get(id=id).delete()
     response = RedirectResponse(url="/", status_code=302)
     response.delete_cookie("jwt")

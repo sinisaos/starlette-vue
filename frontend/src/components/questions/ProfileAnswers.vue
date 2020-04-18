@@ -84,7 +84,7 @@ export default {
   },
   methods: {
     getAnswers() {
-      const path = "http://localhost:8000/questions/user-answers/" + this.token;
+      const path = "/questions/user-answers/" + this.token;
       axios
         .get(path)
         .then(res => {
@@ -96,7 +96,7 @@ export default {
         });
     },
     answerDelete(id) {
-      const path = "http://localhost:8000/questions/answer-delete/" + id;
+      const path = "/questions/answer-delete/" + id;
       axios
         .get(path)
         .then(res => {

@@ -13,6 +13,7 @@ Vue.use(Vuelidate)
 Vue.use(VuePaginate)
 Vue.prototype.$http = Axios;
 Axios.defaults.withCredentials = true;
+Axios.defaults.baseURL = "http://localhost:8000";
 
 const token = localStorage.getItem('token');
 if (token) {

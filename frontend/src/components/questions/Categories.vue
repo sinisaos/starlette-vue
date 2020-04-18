@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     getTags() {
-      const path = "http://localhost:8000/questions/categories";
+      const path = "/questions/categories";
       axios
         .get(path)
         .then(res => {

@@ -156,10 +156,7 @@ export default {
   methods: {
     getQuestion() {
       const path =
-        "http://localhost:8000/questions/" +
-        this.$route.params.id +
-        "/" +
-        this.$route.params.slug;
+        "/questions/" + this.$route.params.id + "/" + this.$route.params.slug;
       axios
         .get(path)
         .then(res => {
@@ -181,8 +178,7 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      const path =
-        "http://localhost:8000/questions/answer-create/" + this.question.id;
+      const path = "/questions/answer-create/" + this.question.id;
       axios
         .post(path, data)
         .then(res => {
@@ -202,21 +198,21 @@ export default {
         });
     },
     questionLike(id) {
-      const path = "http://localhost:8000/questions/question-like/" + id;
+      const path = "/questions/question-like/" + id;
       axios.post(path).then(res => {
         this.data = res.data;
         this.getQuestion();
       });
     },
     answerLike(id) {
-      const path = "http://localhost:8000/questions/answer-like/" + id;
+      const path = "/questions/answer-like/" + id;
       axios.post(path).then(res => {
         this.data = res.data;
         this.getQuestion();
       });
     },
     answerAccept(id) {
-      const path = "http://localhost:8000/questions/answer_accept/" + id;
+      const path = "/questions/answer_accept/" + id;
       axios.post(path).then(res => {
         this.data = res.data;
         this.getQuestion();

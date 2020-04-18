@@ -1,26 +1,28 @@
 <template>
   <div class="container">
     <div class="col-md-12">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Username</th>
-            <th scope="col">Email</th>
-            <th scope="col">Joined</th>
-            <th scope="col">Last login</th>
-            <th scope="col">Login count</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, index) in allUsers" :key="index">
-            <td>{{ user.username }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.joined | dateFormat }}</td>
-            <td>{{ user.last_login | dateFormat}}</td>
-            <td>{{ user.login_count }}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Joined</th>
+              <th scope="col">Last login</th>
+              <th scope="col">Login count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(user, index) in allUsers" :key="index">
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.joined | dateFormat }}</td>
+              <td>{{ user.last_login | dateFormat}}</td>
+              <td>{{ user.login_count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>

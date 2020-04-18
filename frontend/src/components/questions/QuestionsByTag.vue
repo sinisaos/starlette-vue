@@ -50,8 +50,7 @@ export default {
   },
   methods: {
     getQuestions() {
-      const path =
-        "http://localhost:8000/questions/tags/" + this.$route.params.name;
+      const path = "/questions/tags/" + this.$route.params.name;
       axios
         .get(path)
         .then(res => {

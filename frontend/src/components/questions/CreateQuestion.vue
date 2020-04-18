@@ -101,7 +101,7 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      const path = "http://localhost:8000/questions/create";
+      const path = "/questions/create";
       axios
         .post(path, data)
         .then(res => {

@@ -90,8 +90,7 @@ export default {
   },
   methods: {
     getQuestions() {
-      const path =
-        "http://localhost:8000/questions/user-questions/" + this.token;
+      const path = "/questions/user-questions/" + this.token;
       axios
         .get(path)
         .then(res => {
@@ -103,7 +102,7 @@ export default {
         });
     },
     questionDelete(id) {
-      const path = "http://localhost:8000/questions/question-delete/" + id;
+      const path = "/questions/question-delete/" + id;
       axios
         .get(path)
         .then(res => {

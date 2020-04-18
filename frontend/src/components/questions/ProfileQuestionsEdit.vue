@@ -76,10 +76,7 @@ export default {
   methods: {
     getQuestion() {
       const path =
-        "http://localhost:8000/questions/" +
-        this.$route.params.id +
-        "/" +
-        this.$route.params.slug;
+        "/questions/" + this.$route.params.id + "/" + this.$route.params.slug;
       axios
         .get(path)
         .then(res => {
@@ -99,9 +96,7 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      const path =
-        "http://localhost:8000/questions/question-edit/" +
-        this.$route.params.id;
+      const path = "/questions/question-edit/" + this.$route.params.id;
       axios
         .post(path, data)
         .then(res => {
