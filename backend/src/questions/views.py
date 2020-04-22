@@ -200,8 +200,7 @@ async def question_edit(request):
     form = await request.json()
     title = form["title"]
     content = form["content"]
-    query = Question(
-        id=question.id,
+    await Question.filter(id=id).update(
         title=title,
         slug="-".join(title.lower().split()),
         content=content,
@@ -212,8 +211,7 @@ async def question_edit(request):
         accepted_answer=question.accepted_answer,
         user_id=results.id,
     )
-    await query.save()
-    return RedirectResponse(url="/questions", status_code=302)
+    return RedirectResponse(url="/questions/", status_code=302)
 
 
 async def questions_user(request):
@@ -271,7 +269,7 @@ async def answer_create(request):
         results.answer_count += 1
         await results.save()
         return RedirectResponse(
-            url="/questions", status_code=302
+            url="/questions/", status_code=302
         )
 
 
@@ -286,7 +284,7 @@ async def answer_like(request):
     question.view -= 1
     await question.save()
     return RedirectResponse(
-        url="/questions", status_code=302
+        url="/questions/", status_code=302
     )
 
 
@@ -299,7 +297,7 @@ async def answer_accept(request):
     question.accepted_answer = 1
     await question.save()
     return RedirectResponse(
-        url="/questions", status_code=302
+        url="/questions/", status_code=302
     )
 
 
@@ -324,8 +322,7 @@ async def answer_edit(request):
     answer = await Answer.get(id=id)
     form = await request.json()
     content = form["content"]
-    query = Answer(
-        id=answer.id,
+    await Answer.filter(id=id).update(
         content=content,
         created=answer.created,
         answer_like=answer.answer_like,
@@ -333,8 +330,7 @@ async def answer_edit(request):
         question_id=answer.question_id,
         ans_user_id=answer.ans_user_id,
     )
-    await query.save()
-    return RedirectResponse(url="/questions", status_code=302)
+    return RedirectResponse(url="/questions/", status_code=302)
 
 
 async def answer_delete(request):
