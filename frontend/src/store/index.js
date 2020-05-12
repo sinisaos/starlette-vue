@@ -86,20 +86,31 @@ export default new Vuex.Store({
       })
     },
     logout({ commit }) {
-      return new Promise((resolve) => {
-        commit('LOGOUT')
-        localStorage.removeItem('token')
-        delete axios.defaults.headers.common['Authorization']
-        resolve()
+      return new Promise((resolve, reject) => {
+        axios({
+          url: '/accounts/logout',
+          method: 'GET'
+        })
+          .then(resp => {
+            commit('LOGOUT')
+            localStorage.removeItem('token')
+            delete axios.defaults.headers.common['Authorization']
+            resolve(resp)
+          })
+          .catch(err => {
+            commit('AUTH_ERROR', err)
+            localStorage.removeItem('token')
+            reject(err)
+          })
       })
     },
     delete_user({ commit, state, dispatch }, user) {
       return new Promise((resolve, reject) => {
         if (confirm("Are you sure you want to delete the account!"))
           axios({
-            url: '/accounts/delete/' + state.token.id,
+            url: '/accounts/' + state.token.id,
             data: user,
-            method: 'GET'
+            method: 'DELETE'
           })
             .then(resp => {
               commit('DELETE_USER')

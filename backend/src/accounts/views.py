@@ -1,4 +1,5 @@
 import datetime
+from starlette.authentication import requires
 from starlette.responses import (
     Response,
     RedirectResponse,
@@ -96,30 +97,37 @@ async def login(request):
         return response
 
 
+@requires("authenticated")
 async def delete(request):
     """
     Delete user
     """
     id = request.path_params["id"]
-    async with in_transaction() as conn:
-        await conn.execute_query(
-            f"DELETE FROM tag WHERE tag.id IN \
-            (SELECT question_tag.tag_id FROM question \
-            JOIN question_tag ON question_tag.question_id = question.id \
-            JOIN user ON user.id = question.user_id WHERE user.id = {id})"
-        )
-    async with in_transaction() as conn:
-        await conn.execute_query(
-            f"UPDATE question \
-            JOIN answer ON question.id = answer.question_id \
-            JOIN user on user.id = answer.ans_user_id \
-            SET question.accepted_answer = 0 \
-            WHERE user.id = {id} AND answer.is_accepted_answer = 1"
-        )
-    await User.get(id=id).delete()
-    response = RedirectResponse(url="/", status_code=302)
-    response.delete_cookie("jwt")
-    return response
+    session_user = request.user.username
+    results = await User.get(username=session_user)
+    if request.method == "DELETE" and results.username == session_user:
+        async with in_transaction() as conn:
+            await conn.execute_query(
+                f"DELETE FROM tag WHERE tag.id IN \
+                (SELECT question_tag.tag_id FROM question \
+                JOIN question_tag ON question_tag.question_id = question.id \
+                JOIN user ON user.id = question.user_id WHERE user.id = {id})"
+            )
+        async with in_transaction() as conn:
+            await conn.execute_query(
+                f"UPDATE question \
+                JOIN answer ON question.id = answer.question_id \
+                JOIN user on user.id = answer.ans_user_id \
+                SET question.accepted_answer = 0 \
+                WHERE user.id = {id} AND answer.is_accepted_answer = 1"
+            )
+        await User.get(id=id).delete()
+        # 303 status code for redirect after delete
+        response = RedirectResponse(url="/", status_code=303)
+        response.delete_cookie("jwt")
+        return response
+    else:
+        return Response(status_code=403)
 
 
 async def logout(request):

@@ -71,11 +71,6 @@
         </div>
       </div>
     </div>
-    <br />
-    <hr />
-    <footer class="container">
-      <p>&copy; StarletteVue 2019</p>
-    </footer>
   </div>
 </template>
 

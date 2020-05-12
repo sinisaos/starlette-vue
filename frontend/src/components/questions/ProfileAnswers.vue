@@ -96,9 +96,9 @@ export default {
         });
     },
     answerDelete(id) {
-      const path = "/questions/answer-delete/" + id;
+      const path = "/questions/answer/" + id;
       axios
-        .get(path)
+        .delete(path)
         .then(res => {
           this.answers = res.data;
           this.getAnswers();

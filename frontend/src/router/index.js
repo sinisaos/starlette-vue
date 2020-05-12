@@ -69,7 +69,7 @@ let router = new Router({
       }
     },
     {
-      path: '/profile/:name/questions/answer-edit/:id//:content',
+      path: '/profile/:name/questions/answer-edit/:id/:content',
       name: 'profileAnswersEdit',
       component: ProfileAnswersEdit,
       meta: {

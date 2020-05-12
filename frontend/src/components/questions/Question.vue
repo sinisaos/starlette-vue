@@ -212,7 +212,7 @@ export default {
       });
     },
     answerAccept(id) {
-      const path = "/questions/answer_accept/" + id;
+      const path = "/questions/answer-accept/" + id;
       axios.post(path).then(res => {
         this.data = res.data;
         this.getQuestion();

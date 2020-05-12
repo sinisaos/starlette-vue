@@ -49,7 +49,7 @@
                     >
                       <i class="fa fa-edit"></i>
                     </router-link>
-                    <button class="btn btn-danger" @click="questionDelete(item.id)">
+                    <button class="btn btn-danger" @click="questionDelete(item.id, item.slug)">
                       <i class="fa fa-trash"></i>
                     </button>
                     <br />
@@ -101,10 +101,10 @@ export default {
           console.error(error);
         });
     },
-    questionDelete(id) {
-      const path = "/questions/question-delete/" + id;
+    questionDelete(id, slug) {
+      const path = "/questions/" + id + "/" + slug;
       axios
-        .get(path)
+        .delete(path)
         .then(res => {
           this.questions = res.data.questions;
           this.getQuestions();

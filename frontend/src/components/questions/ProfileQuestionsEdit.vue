@@ -96,9 +96,9 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      const path = "/questions/question-edit/" + this.$route.params.id;
+      const path = "/questions/" + this.$route.params.id;
       axios
-        .post(path, data)
+        .put(path, data)
         .then(res => {
           this.data = res.data;
           // eslint-disable-next-line

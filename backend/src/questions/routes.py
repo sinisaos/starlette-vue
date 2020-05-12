@@ -21,6 +21,7 @@ from questions.views import (
 
 
 questions_routes = Router([
+    # all questions endpoints
     Route("/", endpoint=questions_all,
           methods=["GET"], name="questions_all"),
     Route("/unsolved", endpoint=questions_unsolved,
@@ -29,29 +30,34 @@ questions_routes = Router([
           methods=["GET"], name="questions_solved"),
     Route("/{id:int}/{slug:str}", endpoint=question,
           methods=["GET", "POST"], name="question"),
+    # profile user questions and answers
     Route("/user-questions/{id:str}", endpoint=questions_user,
           methods=["GET", "POST"], name="questions_user"),
+    Route("/user-answers/{id:str}", endpoint=answers_user,
+          methods=["GET", "POST"], name="answers_user"),
+    # question endpoints
     Route("/create", endpoint=question_create,
           methods=["GET", "POST"], name="question_create"),
-    Route("/question-edit/{id:int}", endpoint=question_edit,
-          methods=["POST"], name="question_edit"),
-    Route("/question-delete/{id:int}", endpoint=question_delete,
-          methods=["GET"], name="question_delete"),
+    Route("/{id:int}", endpoint=question_edit,
+          methods=["PUT"], name="question_edit"),
+    Route("/{id:int}/{slug:str}", endpoint=question_delete,
+          methods=["DELETE"], name="question_delete"),
     Route("/question-like/{id:int}", endpoint=question_like,
           methods=["POST"], name="question_like"),
-    Route("/tags/{tag:str}", endpoint=tags, methods=["GET"], name="tags"),
-    Route("/categories", endpoint=tags_categories,
-          methods=["GET"], name="tags_categories"),
+    # answer endpoints
     Route("/answer-create/{id:int}", endpoint=answer_create,
           methods=["POST"], name="answer_create"),
     Route("/answer-like/{id:int}", endpoint=answer_like,
           methods=["POST"], name="answer_like"),
-    Route("/answer_accept/{id:int}", endpoint=answer_accept,
+    Route("/answer-accept/{id:int}", endpoint=answer_accept,
           methods=["POST"], name="answer_accept"),
-    Route("/user-answers/{id:str}", endpoint=answers_user,
-          methods=["GET", "POST"], name="answers_user"),
-    Route("/answer-edit/{id:int}", endpoint=answer_edit,
-          methods=["POST"], name="answer_edit"),
-    Route("/answer-delete/{id:int}", endpoint=answer_delete,
-          methods=["GET"], name="answer_delete"),
+    Route("/answer/{id:int}", endpoint=answer_edit,
+          methods=["PUT"], name="answer_edit"),
+    Route("/answer/{id:int}", endpoint=answer_delete,
+          methods=["DELETE"], name="answer_delete"),
+    # tags
+    Route("/tags/{tag:str}", endpoint=tags,
+          methods=["GET"], name="tags"),
+    Route("/categories", endpoint=tags_categories,
+          methods=["GET"], name="tags_categories"),
 ])

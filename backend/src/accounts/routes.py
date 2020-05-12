@@ -11,6 +11,7 @@ routes = Router([
     Route("/register", endpoint=register,
           methods=["POST"], name="register"),
     Route("/logout", endpoint=logout, methods=["GET"], name="logout"),
-    Route("/delete/{id:int}", endpoint=delete,
-          methods=["GET"], name="delete")
+    # delete user endpoint
+    Route("/{id:int}", endpoint=delete,
+          methods=["DELETE"], name="delete")
 ])

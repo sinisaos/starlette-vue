@@ -32,11 +32,6 @@
         </div>
       </div>
     </div>
-    <br />
-    <hr />
-    <footer class="container">
-      <p>&copy; StarletteVue 2019</p>
-    </footer>
   </div>
 </template>
 
@@ -81,12 +76,12 @@ export default {
       if (this.$v.$invalid) {
         return;
       }
-      const path = "/questions/answer-edit/" + this.$route.params.id;
+      const path = "/questions/answer/" + this.$route.params.id;
       axios
-        .post(path, data)
+        .put(path, data)
         .then(res => {
           this.data = res.data;
-          this.$router.push("/profile/" + this.token + "/answers");
+          this.$router.replace("/profile/" + this.token + "/answers");
         })
         .catch(err => {
           this.message = err.response.data;
