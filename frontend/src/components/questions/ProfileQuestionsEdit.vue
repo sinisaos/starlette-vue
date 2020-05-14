@@ -101,9 +101,12 @@ export default {
         .put(path, data)
         .then(res => {
           this.data = res.data;
-          // eslint-disable-next-line
-          console.log(res.data);
-          this.$router.push("/profile/" + this.token + "/questions");
+          let state = this.$store.state;
+          if (state.token.username === "admin") {
+            this.$router.replace("/dashboard/questions");
+          } else {
+            this.$router.replace("/profile/" + this.token + "/questions");
+          }
         })
         .catch(err => {
           this.message = err.response.data;

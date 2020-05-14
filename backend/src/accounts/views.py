@@ -1,8 +1,9 @@
 import datetime
 from starlette.authentication import requires
 from starlette.responses import (
+    UJSONResponse,
     Response,
-    RedirectResponse,
+    RedirectResponse
 )
 from tortoise.transactions import in_transaction
 from accounts.models import (
@@ -10,7 +11,14 @@ from accounts.models import (
     check_password,
     generate_jwt,
     hash_password,
+    users_schema,
     ADMIN
+)
+from questions.models import (
+    Question,
+    Answer,
+    questions_schema,
+    answers_schema,
 )
 
 
@@ -97,6 +105,26 @@ async def login(request):
         return response
 
 
+@requires(["authenticated", ADMIN])
+async def dashboard(request):
+    if request.user.is_authenticated:
+        users = await User.all()
+        results = users_schema.dump(users)
+        qus = await Question.all().prefetch_related(
+            "user", "tags").order_by('-id')
+        questions = questions_schema.dump(qus)
+        ans = await Answer.all().prefetch_related(
+            "ans_user", "question").order_by('-id')
+        answers = answers_schema.dump(ans)
+        return UJSONResponse(
+            {
+                "results": results,
+                "questions": questions,
+                "answers": answers,
+            }
+        )
+
+
 @requires("authenticated")
 async def delete(request):
     """
@@ -105,7 +133,11 @@ async def delete(request):
     id = request.path_params["id"]
     session_user = request.user.username
     results = await User.get(username=session_user)
-    if request.method == "DELETE" and results.username == session_user:
+    if (
+        request.method == "DELETE"
+        and results.username == session_user
+        or session_user == ADMIN
+    ):
         async with in_transaction() as conn:
             await conn.execute_query(
                 f"DELETE FROM tag WHERE tag.id IN \

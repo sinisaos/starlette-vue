@@ -37,7 +37,6 @@ app.add_middleware(
 
 @app.route("/", methods=["GET"])
 async def index(request):
-    token = request.cookies.get('jwt')
     auth_user = request.user.display_name
     users = await User.all().order_by("-id")
     results = users_schema.dump(users)
@@ -47,7 +46,6 @@ async def index(request):
         return UJSONResponse(
             {
                 "results": results,
-                "token": token,
                 "auth_user": auth_user,
                 "result": result,
             }
@@ -56,7 +54,6 @@ async def index(request):
         response = UJSONResponse(
             {
                 "results": results,
-                "token": token,
                 "auth_user": auth_user,
             }
         )

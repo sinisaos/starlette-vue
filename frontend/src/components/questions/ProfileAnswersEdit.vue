@@ -81,7 +81,12 @@ export default {
         .put(path, data)
         .then(res => {
           this.data = res.data;
-          this.$router.replace("/profile/" + this.token + "/answers");
+          let state = this.$store.state;
+          if (state.token.username === "admin") {
+            this.$router.replace("/dashboard/answers");
+          } else {
+            this.$router.replace("/profile/" + this.token + "/answers");
+          }
         })
         .catch(err => {
           this.message = err.response.data;

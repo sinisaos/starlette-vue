@@ -16,32 +16,39 @@
             class="list-group-item list-group-item-action"
           >Answers</router-link>
         </div>
+        <br />
+        <br />
       </div>
       <div class="col-md-9">
-        <paginate name="allUsers" :list="allUsers" tag="div">
+        <paginate name="answers" :list="answers" tag="div">
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
                 <tr>
-                  <th scope="col">Username</th>
-                  <th scope="col">Email</th>
-                  <th scope="col">Joined</th>
-                  <th scope="col">Last login</th>
-                  <th scope="col">Login count</th>
-                  <th scope="col">Action</th>
+                  <th>Content</th>
+                  <th>Created</th>
+                  <th>Likes</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(user, index) in paginated('allUsers')" :key="index">
-                  <td>{{ user.username }}</td>
-                  <td>{{ user.email }}</td>
-                  <td>{{ user.joined | dateFormat }}</td>
-                  <td>{{ user.last_login | dateFormat}}</td>
-                  <td>{{ user.login_count }}</td>
+                <tr v-for="(item, index) in paginated('answers')" :key="index">
                   <td>
-                    <button class="btn btn-danger float-right" @click="userDelete(user.id)">
+                    <p>{{ item.content.slice(0,50) }}...</p>
+                  </td>
+                  <td>{{ item.created | dateFormat }}</td>
+                  <td>{{ item.answer_like }}</td>
+                  <td>
+                    <router-link
+                      :to="{ name: 'profileAnswersEdit', params: { id: item.id, content:item.content}}"
+                      class="btn btn-info"
+                    >
+                      <i class="fa fa-edit"></i>
+                    </router-link>
+                    <button class="btn btn-danger" @click="answerDelete(item.id)">
                       <i class="fa fa-trash"></i>
                     </button>
+                    <br />
                   </td>
                 </tr>
               </tbody>
@@ -49,7 +56,7 @@
           </div>
         </paginate>
         <ul class="pagination float-right">
-          <paginate-links for="allUsers" :async="true" :limit="2" :show-step-links="true"></paginate-links>
+          <paginate-links for="answers" :async="true" :limit="2" :show-step-links="true"></paginate-links>
         </ul>
       </div>
     </div>
@@ -62,37 +69,39 @@ import axios from "axios";
 export default {
   data() {
     return {
-      allUsers: [],
-      paginate: ["allUsers"]
+      get token() {
+        return localStorage.getItem("token") || 0;
+      },
+      answers: [],
+      paginate: ["answers"]
     };
   },
-  // format date
   filters: {
     dateFormat: function(value) {
       let date = new Date(value);
-      return date.toString().slice(0, 24);
+      return date.toString().slice(4, 24);
     }
   },
   methods: {
-    getUsers() {
-      const path = "/";
+    getAnswers() {
+      const path = "/accounts/dashboard";
       axios
         .get(path)
         .then(res => {
-          this.allUsers = res.data.results;
+          this.answers = res.data.answers;
         })
         .catch(error => {
           // eslint-disable-next-line
           console.error(error);
         });
     },
-    userDelete(id) {
-      const path = "/accounts/" + id;
+    answerDelete(id) {
+      const path = "/questions/answer/" + id;
       axios
         .delete(path)
         .then(res => {
-          this.users = res.data;
-          this.getUsers();
+          this.answers = res.data;
+          this.getAnswers();
         })
         .catch(error => {
           // eslint-disable-next-line
@@ -101,7 +110,28 @@ export default {
     }
   },
   created() {
-    this.getUsers();
+    this.getAnswers();
   }
 };
 </script>
+
+<style lang="css">
+.btn {
+  margin-right: 5px;
+}
+
+.errspan {
+  float: right;
+  margin-right: 12px;
+  margin-top: -27px;
+  position: relative;
+  z-index: 2;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+  cursor: pointer;
+  border: 1px black;
+}
+</style>

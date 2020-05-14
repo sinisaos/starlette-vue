@@ -15,7 +15,7 @@ from questions.models import (
     answers_schema,
     question_schema,
 )
-from accounts.models import User
+from accounts.models import User, ADMIN
 
 
 async def questions_all(request):
@@ -169,7 +169,11 @@ async def question_edit(request):
     id = request.path_params["id"]
     session_user = request.user.username
     question = await Question.get(id=id).prefetch_related('user')
-    if request.method == "PUT" and question.user.username == session_user:
+    if (
+        request.method == "PUT"
+        and question.user.username == session_user
+        or session_user == ADMIN
+    ):
         form = await request.json()
         title = form["title"]
         content = form["content"]
@@ -205,7 +209,7 @@ async def questions_user(request):
     )
 
 
-@requires("authenticated")
+@requires(["authenticated", ADMIN])
 async def question_delete(request):
     """
     Delete question
@@ -308,7 +312,11 @@ async def answer_edit(request):
     id = request.path_params["id"]
     session_user = request.user.username
     answer = await Answer.get(id=id).prefetch_related('ans_user')
-    if request.method == "PUT" and answer.ans_user.username == session_user:
+    if (
+        request.method == "PUT"
+        and answer.ans_user.username == session_user
+        or session_user == ADMIN
+    ):
         form = await request.json()
         content = form["content"]
         await Answer.filter(id=id).update(

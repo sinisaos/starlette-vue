@@ -5,6 +5,8 @@ import Home from '../views/Home.vue'
 import Login from '../components/accounts/Login.vue'
 import Register from '../components/accounts/Register.vue'
 import Dashboard from '../components/accounts/Dashboard.vue'
+import DashboardQuestions from '../components/accounts/DashboardQuestions.vue'
+import DashboardAnswers from '../components/accounts/DashboardAnswers.vue'
 import Profile from '../components/accounts/Profile.vue'
 import Questions from '../components/questions/Questions.vue'
 import Question from '../components/questions/Question.vue'
@@ -40,6 +42,21 @@ let router = new Router({
       path: '/dashboard',
       name: 'dashboard',
       component: Dashboard,
+      meta: {
+        requiresAuth: true
+      }
+    }, {
+      path: '/dashboard/questions',
+      name: 'dashboardQuestions',
+      component: DashboardQuestions,
+      meta: {
+        requiresAuth: true
+      }
+    },
+    {
+      path: '/dashboard/answers',
+      name: 'dashboardAnswers',
+      component: DashboardAnswers,
       meta: {
         requiresAuth: true
       }
