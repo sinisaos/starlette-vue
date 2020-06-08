@@ -33,10 +33,6 @@
         </div>
       </div>
     </div>
-    <hr />
-    <footer class="container">
-      <p>&copy; StarletteVue 2019</p>
-    </footer>
   </div>
   <!-- /container -->
 </template>
