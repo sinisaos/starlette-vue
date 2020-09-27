@@ -11,7 +11,7 @@
     "axios": "^0.19.2",
     "bootstrap-vue": "^2.10.1",
     "core-js": "^3.6.4",
-    "serialize-javascript": "^2.1.2",
+    "serialize-javascript": "^3.1.0",
     "vue": "^2.6.11",
     "vue-paginate": "^3.6.0",
     "vue-router": "^3.1.6",
