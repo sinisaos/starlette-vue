@@ -7,7 +7,7 @@ cffi==1.12.3
 ciso8601==2.1.2
 Click==7.0
 contextvars==2.4
-cryptography==2.7
+cryptography==3.2
 databases==0.2.5
 h11==0.8.1
 httptools==0.0.13
@@ -29,7 +29,7 @@ SQLAlchemy==1.3.10
 starlette==0.12.9
 tortoise-orm==0.15.23
 ujson==1.35
-uvicorn==0.9.0
+uvicorn==0.11.7
 uvloop==0.13.0
 websockets==8.0.2
 WTForms==2.2.1
