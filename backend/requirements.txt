@@ -31,5 +31,5 @@ tortoise-orm==0.15.23
 ujson==1.35
 uvicorn==0.11.7
 uvloop==0.13.0
-websockets==8.0.2
+websockets==9.1
 WTForms==2.2.1
