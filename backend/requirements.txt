@@ -19,7 +19,7 @@ marshmallow==3.2.2
 pkg-resources==0.0.0
 py-bcrypt==0.4
 pycparser==2.19
-PyJWT==1.7.1
+PyJWT==2.4.0
 PyMySQL==0.9.2
 PyPika==0.35.15
 python-multipart==0.0.5
