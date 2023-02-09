@@ -7,7 +7,7 @@ cffi==1.12.3
 ciso8601==2.1.2
 Click==7.0
 contextvars==2.4
-cryptography==3.3.2
+cryptography==39.0.1
 databases==0.2.5
 h11==0.8.1
 httptools==0.0.13
