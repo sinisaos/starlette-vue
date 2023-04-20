@@ -1,10 +1,6 @@
 import datetime
 from starlette.authentication import requires
-from starlette.responses import (
-    UJSONResponse,
-    Response,
-    RedirectResponse
-)
+from starlette.responses import JSONResponse, Response, RedirectResponse
 from tortoise.transactions import in_transaction
 from accounts.models import (
     User,
@@ -12,7 +8,7 @@ from accounts.models import (
     generate_jwt,
     hash_password,
     users_schema,
-    ADMIN
+    ADMIN,
 )
 from questions.models import (
     Question,
@@ -35,7 +31,7 @@ async def register(request):
         if email == result.email or username == result.username:
             return Response(
                 "User with that email or username already exists!",
-                status_code=422
+                status_code=422,
             )
     query = User(
         username=username,
@@ -55,15 +51,9 @@ async def register(request):
     # localStorage for Vue auth
     if valid_password:
         response.set_cookie(
-            "jwt",
-            generate_jwt(user_query.username),
-            httponly=True
+            "jwt", generate_jwt(user_query.username), httponly=True
         )
-        response.set_cookie(
-            "admin",
-            ADMIN,
-            httponly=True
-        )
+        response.set_cookie("admin", ADMIN, httponly=True)
     return response
 
 
@@ -80,8 +70,7 @@ async def login(request):
         valid_password = check_password(password, hashed_password)
         if not valid_password or results.username != username:
             response = Response(
-                "Invalid username or password!",
-                status_code=422
+                "Invalid username or password!", status_code=422
             )
             return response
         # update login counter and login time
@@ -93,14 +82,14 @@ async def login(request):
         # than we don't have to store jwt in browser
         # localStorage for Vue auth
         if valid_password:
-            response.set_cookie("jwt", generate_jwt(
-                results.username), httponly=True)
+            response.set_cookie(
+                "jwt", generate_jwt(results.username), httponly=True
+            )
             response.set_cookie("admin", ADMIN, httponly=True)
         return response
     except:
         response = Response(
-            "Please register you don't have account!",
-            status_code=422
+            "Please register you don't have account!", status_code=422
         )
         return response
 
@@ -110,13 +99,19 @@ async def dashboard(request):
     if request.user.is_authenticated:
         users = await User.all()
         results = users_schema.dump(users)
-        qus = await Question.all().prefetch_related(
-            "user", "tags").order_by('-id')
+        qus = (
+            await Question.all()
+            .prefetch_related("user", "tags")
+            .order_by("-id")
+        )
         questions = questions_schema.dump(qus)
-        ans = await Answer.all().prefetch_related(
-            "ans_user", "question").order_by('-id')
+        ans = (
+            await Answer.all()
+            .prefetch_related("ans_user", "question")
+            .order_by("-id")
+        )
         answers = answers_schema.dump(ans)
-        return UJSONResponse(
+        return JSONResponse(
             {
                 "results": results,
                 "questions": questions,

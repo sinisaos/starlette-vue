@@ -50,7 +50,7 @@ class UserAuthentication(AuthenticationBackend):
                 payload = jwt.decode(
                     jwt_cookie.encode("utf8"),
                     str(SECRET_KEY),
-                    algorithms=["HS256"]
+                    algorithms=["HS256"],
                 )
                 if SimpleUser(payload["user_id"]).username == ADMIN:
                     return (
@@ -79,6 +79,5 @@ def check_password(password: str, hashed_password):
 
 def generate_jwt(user_id):
     payload = {"user_id": user_id}
-    token = jwt.encode(payload, str(SECRET_KEY),
-                       algorithm="HS256").decode("utf-8")
+    token = jwt.encode(payload, str(SECRET_KEY), algorithm="HS256")
     return token
