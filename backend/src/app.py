@@ -1,17 +1,12 @@
+import secure
 from starlette.applications import Starlette
-from starlette.responses import UJSONResponse
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.responses import JSONResponse
 from tortoise.contrib.starlette import register_tortoise
-from secure import SecureHeaders
 from settings import SECRET_KEY, DB_URI
-from accounts.models import (
-    UserAuthentication,
-    User,
-    users_schema,
-    user_schema
-)
+from accounts.models import UserAuthentication, User, users_schema, user_schema
 from accounts.routes import routes
 from questions.routes import questions_routes
 
@@ -19,7 +14,7 @@ from questions.routes import questions_routes
 # can enhance the security of your web application
 # by enabling browser security policies.
 # more on https://secure.readthedocs.io/en/latest/headers.html
-secure_headers = SecureHeaders()
+secure_headers = secure.Secure()
 
 app = Starlette(debug=True)
 app.mount("/accounts", routes)
@@ -31,7 +26,7 @@ app.add_middleware(
     allow_origins=["http://localhost:8080"],
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_credentials=True
+    allow_credentials=True,
 )
 
 
@@ -43,7 +38,7 @@ async def index(request):
     try:
         user = await User.get(username=auth_user)
         result = user_schema.dump(user)
-        return UJSONResponse(
+        return JSONResponse(
             {
                 "results": results,
                 "auth_user": auth_user,
@@ -51,7 +46,7 @@ async def index(request):
             }
         )
     except:
-        response = UJSONResponse(
+        response = JSONResponse(
             {
                 "results": results,
                 "auth_user": auth_user,
@@ -59,22 +54,18 @@ async def index(request):
         )
         return response
 
+
 # middleware for secure headers
 @app.middleware("http")
 async def set_secure_headers(request, call_next):
     response = await call_next(request)
-    secure_headers.starlette(response)
+    secure_headers.framework.starlette(response)
     return response
 
 
 register_tortoise(
     app,
     db_url=DB_URI,
-    modules={
-        "models": [
-            "accounts.models",
-            "questions.models"
-        ]
-    },
-    generate_schemas=True
+    modules={"models": ["accounts.models", "questions.models"]},
+    generate_schemas=True,
 )

@@ -1,11 +1,7 @@
 import datetime
 import itertools as it
 from starlette.authentication import requires
-from starlette.responses import (
-    UJSONResponse,
-    RedirectResponse,
-    Response
-)
+from starlette.responses import JSONResponse, RedirectResponse, Response
 from tortoise.transactions import in_transaction
 from questions.models import (
     Question,
@@ -22,60 +18,67 @@ async def questions_all(request):
     """
     Marshmallow for serilization
     """
-    results = await Question.all().prefetch_related(
-        "user", "tags").order_by("-id")
+    results = (
+        await Question.all().prefetch_related("user", "tags").order_by("-id")
+    )
     # Serialize the queryset
     questions = questions_schema.dump(results)
-    answer_count = [(
-        await Answer.all()
-        .prefetch_related("question")
-        .filter(question__id=row.id).count()
-    ) for row in results]
+    answer_count = [
+        (
+            await Answer.all()
+            .prefetch_related("question")
+            .filter(question__id=row.id)
+            .count()
+        )
+        for row in results
+    ]
     for item, x in zip(questions, answer_count):
-        item['answer_count'] = x
-    return UJSONResponse(
-        {
-            "questions": questions
-        }
-    )
+        item["answer_count"] = x
+    return JSONResponse({"questions": questions})
 
 
 async def questions_unsolved(request):
-    results = await Question.filter(accepted_answer=0).prefetch_related(
-        "user", "tags").order_by("-id")
+    results = (
+        await Question.filter(accepted_answer=0)
+        .prefetch_related("user", "tags")
+        .order_by("-id")
+    )
     # Serialize the queryset
     questions = questions_schema.dump(results)
-    answer_count = [(
-        await Answer.all()
-        .prefetch_related("question")
-        .filter(question__id=row.id).count()
-    ) for row in results]
+    answer_count = [
+        (
+            await Answer.all()
+            .prefetch_related("question")
+            .filter(question__id=row.id)
+            .count()
+        )
+        for row in results
+    ]
     for item, x in zip(questions, answer_count):
-        item['answer_count'] = x
-    return UJSONResponse(
-        {
-            "questions": questions
-        }
-    )
+        item["answer_count"] = x
+    return JSONResponse({"questions": questions})
 
 
 async def questions_solved(request):
-    results = await Question.filter(accepted_answer=1).prefetch_related(
-        "user", "tags").order_by("-id")
+    results = (
+        await Question.filter(accepted_answer=1)
+        .prefetch_related("user", "tags")
+        .order_by("-id")
+    )
     # Serialize the queryset
     questions = questions_schema.dump(results)
-    answer_count = [(
-        await Answer.all()
-        .prefetch_related("question")
-        .filter(question__id=row.id).count()
-    ) for row in results]
+    answer_count = [
+        (
+            await Answer.all()
+            .prefetch_related("question")
+            .filter(question__id=row.id)
+            .count()
+        )
+        for row in results
+    ]
     for item, x in zip(questions, answer_count):
-        item['answer_count'] = x
-    return UJSONResponse(
-        {
-            "questions": questions
-        }
-    )
+        item["answer_count"] = x
+    return JSONResponse({"questions": questions})
 
 
 async def question(request):
@@ -96,11 +99,11 @@ async def question(request):
     # update question views
     result.view += 1
     await result.save()
-    return UJSONResponse(
+    return JSONResponse(
         {
             "question": question,
-            'answers': answers,
-            "answer_count": len(answers)
+            "answers": answers,
+            "answer_count": len(answers),
         }
     )
 
@@ -115,9 +118,7 @@ async def question_like(request):
         results.question_like += 1
         results.view -= 1
         await results.save()
-        return RedirectResponse(
-            url="/", status_code=303
-        )
+        return RedirectResponse(url="/", status_code=303)
     else:
         return Response(status_code=403)
 
@@ -148,17 +149,14 @@ async def question_create(request):
             tags = []
             # split tags and make sure that is valid tags list without empty
             # space and than insert in db
-            valid_tags_list = [i for i in form["tags"].split(",") if i != '']
+            valid_tags_list = [i for i in form["tags"].split(",") if i != ""]
             for idx, item in enumerate(valid_tags_list):
                 tag = Tag(name=item.lower())
                 await tag.save()
                 tags.append(tag)
                 await query.tags.add(tags[idx])
             return RedirectResponse(url="/questions", status_code=303)
-        return Response(
-            "Tags must be comma-separated",
-            status_code=422
-        )
+        return Response("Tags must be comma-separated", status_code=422)
 
 
 @requires("authenticated")
@@ -168,7 +166,7 @@ async def question_edit(request):
     """
     id = request.path_params["id"]
     session_user = request.user.username
-    question = await Question.get(id=id).prefetch_related('user')
+    question = await Question.get(id=id).prefetch_related("user")
     if (
         request.method == "PUT"
         and question.user.username == session_user
@@ -197,16 +195,15 @@ async def question_edit(request):
 async def questions_user(request):
     id = request.path_params["id"]
     results = await User.get(username=id)
-    result = await Question.all().prefetch_related(
-        "user", "tags").filter(
-        user_id=results.id).order_by("-id")
+    result = (
+        await Question.all()
+        .prefetch_related("user", "tags")
+        .filter(user_id=results.id)
+        .order_by("-id")
+    )
     # Serialize the queryset
     questions = questions_schema.dump(result)
-    return UJSONResponse(
-        {
-            "questions": questions
-        }
-    )
+    return JSONResponse({"questions": questions})
 
 
 @requires(["authenticated", ADMIN])
@@ -216,7 +213,7 @@ async def question_delete(request):
     """
     id = request.path_params["id"]
     session_user = request.user.username
-    results = await Question.get(id=id).prefetch_related('user')
+    results = await Question.get(id=id).prefetch_related("user")
     if request.method == "DELETE" and results.user.username == session_user:
         async with in_transaction() as conn:
             await conn.execute_query(
@@ -254,9 +251,7 @@ async def answer_create(request):
         await query.save()
         results.answer_count += 1
         await results.save()
-        return RedirectResponse(
-            url="/questions/", status_code=303
-        )
+        return RedirectResponse(url="/questions/", status_code=303)
 
 
 @requires("authenticated")
@@ -271,9 +266,7 @@ async def answer_like(request):
         await result.save()
         question.view -= 1
         await question.save()
-        return RedirectResponse(
-            url="/questions/", status_code=303
-        )
+        return RedirectResponse(url="/questions/", status_code=303)
     else:
         return Response(status_code=403)
 
@@ -286,9 +279,7 @@ async def answer_accept(request):
     await result.save()
     question.accepted_answer = 1
     await question.save()
-    return RedirectResponse(
-        url="/questions/", status_code=303
-    )
+    return RedirectResponse(url="/questions/", status_code=303)
 
 
 async def answers_user(request):
@@ -297,11 +288,7 @@ async def answers_user(request):
     result = await Answer.all().filter(ans_user_id=results.id)
     # Serialize the queryset
     answers = answers_schema.dump(result)
-    return UJSONResponse(
-        {
-            "answers": answers
-        }
-    )
+    return JSONResponse({"answers": answers})
 
 
 @requires("authenticated")
@@ -311,7 +298,7 @@ async def answer_edit(request):
     """
     id = request.path_params["id"]
     session_user = request.user.username
-    answer = await Answer.get(id=id).prefetch_related('ans_user')
+    answer = await Answer.get(id=id).prefetch_related("ans_user")
     if (
         request.method == "PUT"
         and answer.ans_user.username == session_user
@@ -342,7 +329,7 @@ async def answer_delete(request):
     session_user = request.user.username
     answer = (
         await Answer.get(id=id)
-        .prefetch_related('ans_user')
+        .prefetch_related("ans_user")
         .filter(ans_user__username=session_user)
     )
     results = await Question.get(id=answer.question_id)
@@ -371,11 +358,7 @@ async def tags(request):
     )
     # Serialize the queryset
     questions = questions_schema.dump(result)
-    return UJSONResponse(
-        {
-            "questions": questions
-        }
-    )
+    return JSONResponse({"questions": questions})
 
 
 async def tags_categories(request):
@@ -384,11 +367,5 @@ async def tags_categories(request):
     """
     # use itertools.groupby to simulate SQL GROUP BY
     results = await Tag.all().order_by("name").values("name")
-    categories_tags = [
-        (k, sum(1 for i in g)) for k, g in it.groupby(results)
-    ]
-    return UJSONResponse(
-        {
-            "categories_tags": categories_tags
-        }
-    )
+    categories_tags = [(k, sum(1 for i in g)) for k, g in it.groupby(results)]
+    return JSONResponse({"categories_tags": categories_tags})
