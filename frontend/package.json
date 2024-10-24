@@ -15,7 +15,7 @@
     "is-svg": "^4.4.0",
     "serialize-javascript": "^3.1.0",
     "ssri": "^8.0.1",
-    "vue": "^2.6.12",
+    "vue": "^3.0.0",
     "vue-paginate": "^3.6.0",
     "vue-router": "^3.4.6",
     "vuelidate": "^0.7.5",
