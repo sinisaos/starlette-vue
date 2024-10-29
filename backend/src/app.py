@@ -1,7 +1,8 @@
-import secure
+from secure import Secure
 from starlette.applications import Starlette
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse
 from tortoise.contrib.starlette import register_tortoise
@@ -14,7 +15,7 @@ from questions.routes import questions_routes
 # can enhance the security of your web application
 # by enabling browser security policies.
 # more on https://secure.readthedocs.io/en/latest/headers.html
-secure_headers = secure.Secure()
+secure_headers = Secure.with_default_headers()
 
 app = Starlette(debug=True)
 app.mount("/accounts", routes)
@@ -23,7 +24,7 @@ app.add_middleware(AuthenticationMiddleware, backend=UserAuthentication())
 app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080"],
+    allow_origins=["http://localhost:5173"],
     allow_methods=["*"],
     allow_headers=["*"],
     allow_credentials=True,
@@ -56,11 +57,11 @@ async def index(request):
 
 
 # middleware for secure headers
-@app.middleware("http")
-async def set_secure_headers(request, call_next):
-    response = await call_next(request)
-    secure_headers.framework.starlette(response)
-    return response
+class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        await secure_headers.set_headers_async(response)
+        return response
 
 
 register_tortoise(
