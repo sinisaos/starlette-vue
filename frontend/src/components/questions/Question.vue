@@ -141,12 +141,12 @@
                             item.is_accepted_answer == 1
                         "
                     >
-                        <span class="badge badge-badge-pill badge-success"
+                        <span class="badge rounded-pill bg-success"
                             >Accepted answer</span
                         >
                     </div>
                     <div v-else-if="item.is_accepted_answer == 1">
-                        <span class="badge badge-badge-pill badge-success"
+                        <span class="badge rounded-pill bg-success"
                             >Accepted answer</span
                         >
                     </div>

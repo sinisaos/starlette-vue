@@ -51,11 +51,6 @@
                     <b>{{ item.user.username }}</b>
                     <b></b>
                 </span>
-                <span
-                    v-if="item.accepted_answer"
-                    class="badge badge-badge-pill-lg badge-success float-right"
-                    >Solved</span
-                >
                 <hr />
                 <p class="mb-1">{{ item.content }}</p>
                 <br />
@@ -73,6 +68,11 @@
                         >{{ tag.name }}</router-link
                     >
                 </div>
+                <span
+                    v-if="item.accepted_answer"
+                    class="badge rounded-pill bg-success float-end"
+                    >Solved</span
+                >
                 <br />
                 <br />
                 <i class="fa fa-eye" aria-hidden="true" title="Views"

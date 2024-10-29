@@ -20,10 +20,10 @@
                                 id="title"
                                 name="title"
                                 class="form-control"
-                                :class="{ 'is-invalid': $v.title.$error }"
+                                :class="{ 'is-invalid': v$.title.$error }"
                             />
                             <div
-                                v-if="!$v.title.required"
+                                v-if="!v$.title.required"
                                 class="invalid-feedback"
                             >
                                 Title is required
@@ -38,13 +38,13 @@
                                 class="form-control"
                                 rows="5"
                                 max-rows="10"
-                                :class="{ 'is-invalid': $v.content.$error }"
+                                :class="{ 'is-invalid': v$.content.$error }"
                             ></b-form-textarea>
                             <div
-                                v-if="$v.content.$error"
+                                v-if="v$.content.$error"
                                 class="invalid-feedback"
                             >
-                                <span v-if="!$v.content.required"
+                                <span v-if="!v$.content.required"
                                     >Content is required</span
                                 >
                             </div>
@@ -116,8 +116,8 @@ export default defineComponent({
                 title: this.title,
                 content: this.content
             }
-            this.$v.$touch()
-            if (this.$v.$invalid) {
+            this.v$.$touch()
+            if (this.v$.$invalid) {
                 return
             }
             const path = "/questions/" + this.$route.params.id

@@ -90,13 +90,11 @@ const store = createStore({
             return new Promise((resolve, reject) => {
                 axios({
                     url: '/accounts/logout',
-                    data: user,
-                    method: 'POST'
+                    method: 'GET'
                 })
                     .then(resp => {
                         commit('LOGOUT')
                         localStorage.removeItem('token')
-                        delete axios.defaults.headers.common['Authorization']
                         resolve(resp)
                     })
                     .catch(err => {
