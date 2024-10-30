@@ -25,7 +25,7 @@ pytz
 secure
 six
 starlette
-tortoise-orm
+tortoise-orm<=0.20.1
 uvicorn
 uvloop
 webargs

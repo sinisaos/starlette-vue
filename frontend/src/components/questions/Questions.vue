@@ -1,207 +1,239 @@
 <template>
-  <div class="container">
-    <div class="col-md-8 offset-md-2" v-if="empty">
-      <div class="form-group">
-        <input type="text" v-model="search" class="form-control" placeholder="Search questions" />
-        <i class="fa fa-search errspan" aria-hidden="true"></i>
-      </div>
-    </div>
-    <div class="col-md-8 offset-md-2" v-if="!search">
-      <button class="btn btn-link" @click="getQuestions">All questions</button>
-      <button class="btn btn-link" @click="getQuestionsUnsolved">Open</button>
-      <button class="btn btn-link" @click="getQuestionsSolved">Solved</button>
-      <button class="btn btn-link" @click="sortOldest">Oldest</button>
-      <button class="btn btn-link" @click="sortMostViewed">Most viewed</button>
-      <button class="btn btn-link" @click="sortMostLiked">Most popular</button>
-    </div>
-    <br />
-    <div class="col-md-12" v-if="filterQuestions.length !== 0">
-      <paginate name="questions" :list="filterQuestions" tag="div">
-        <div
-          class="col-md-8 offset-md-2"
-          v-for="(item, index) in paginated('questions')"
-          :key="index"
-        >
-          <h4>
-            <router-link :to="{ name: 'question', params: { id: item.id, slug: item.slug }}">
-              <b>{{ item.title }}</b>
-            </router-link>
-          </h4>
-          <span>
-            asked on
-            <i>{{ item.created | dateFormat }}</i> by
-            <b>{{ item.user.username }}</b>
-            <b></b>
-          </span>
-          <span
-            v-if="item.accepted_answer"
-            class="badge badge-badge-pill-lg badge-success float-right"
-          >Solved</span>
-          <hr />
-          <p class="mb-1">{{ item.content }}</p>
-          <br />
-          <div class="btn-group" v-for="(tag,idx) in item.tags" :key="idx">
-            <router-link
-              :to="{ name: 'questionsByTag', params: { name: tag.name }}"
-              tag="button"
-              class="btn btn-primary"
-            >{{ tag.name }}</router-link>
-          </div>
-          <br />
-          <br />
-          <i class="fa fa-eye" aria-hidden="true" title="Views">&ensp;{{ item.view }}</i>&ensp;
-          <i
-            class="fa fa-comment"
-            aria-hidden="true"
-            title="Answers"
-          >&ensp;{{ item.answer_count }}</i>&ensp;
-          <i
-            class="fa fa-thumbs-up"
-            aria-hidden="true"
-            title="Likes"
-          >&ensp;{{ item.question_like }}</i>
-          &ensp;
-          <br />
-          <hr />
+    <div class="container">
+        <div class="col-md-8 offset-md-2" v-if="empty">
+            <div class="form-group">
+                <input
+                    type="text"
+                    v-model="search"
+                    class="form-control"
+                    placeholder="Search questions"
+                />
+            </div>
         </div>
-      </paginate>
-      <div class="col-md-8 offset-md-2">
-        <ul class="pagination float-right">
-          <paginate-links for="questions" :async="true" :limit="2" :show-step-links="true"></paginate-links>
-        </ul>
-      </div>
+        <div class="col-md-8 offset-md-2" v-if="!search">
+            <button class="btn btn-link" @click="getQuestions">
+                All questions
+            </button>
+            <button class="btn btn-link" @click="getQuestionsUnsolved">
+                Open
+            </button>
+            <button class="btn btn-link" @click="getQuestionsSolved">
+                Solved
+            </button>
+            <button class="btn btn-link" @click="sortOldest">Oldest</button>
+            <button class="btn btn-link" @click="sortMostViewed">
+                Most viewed
+            </button>
+            <button class="btn btn-link" @click="sortMostLiked">
+                Most popular
+            </button>
+        </div>
+        <br />
+        <div class="col-md-12" v-if="filterQuestions.length !== 0">
+            <div
+                class="col-md-8 offset-md-2"
+                v-for="(item, index) in displayedQuestions"
+                :key="index"
+            >
+                <h4>
+                    <router-link
+                        :to="{
+                            name: 'question',
+                            params: { id: item.id, slug: item.slug }
+                        }"
+                    >
+                        <b>{{ item.title }}</b>
+                    </router-link>
+                </h4>
+                <span>
+                    asked on
+                    <i>{{ formatDate(item.created) }}</i> by
+                    <b>{{ item.user.username }}</b>
+                    <b></b>
+                </span>
+                <hr />
+                <p class="mb-1">{{ item.content }}</p>
+                <br />
+                <div
+                    class="btn-group"
+                    v-for="(tag, idx) in item.tags"
+                    :key="idx"
+                >
+                    <router-link
+                        :to="{
+                            name: 'questionsByTag',
+                            params: { name: tag.name }
+                        }"
+                        class="btn btn-primary"
+                        >{{ tag.name }}</router-link
+                    >
+                </div>
+                <span
+                    v-if="item.accepted_answer"
+                    class="badge rounded-pill bg-success float-end"
+                    >Solved</span
+                >
+                <br />
+                <br />
+                <i class="fa fa-eye" aria-hidden="true" title="Views"
+                    >&ensp;{{ item.view }}</i
+                >&ensp;
+                <i class="fa fa-comment" aria-hidden="true" title="Answers"
+                    >&ensp;{{ item.answer_count }}</i
+                >&ensp;
+                <i class="fa fa-thumbs-up" aria-hidden="true" title="Likes"
+                    >&ensp;{{ item.question_like }}</i
+                >
+                &ensp;
+                <br />
+                <hr />
+            </div>
+            <div class="col-md-8 offset-md-2">
+                <ul class="pagination float-end">
+                    <vue-awesome-paginate
+                        :total-items="questions.length"
+                        :items-per-page="perPage"
+                        :max-pages-shown="5"
+                        v-model="currentPage"
+                        :onclick="onClickHandler"
+                    />
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-8 offset-md-2" v-else>
+            <h3>No results.</h3>
+        </div>
+        <br />
     </div>
-    <div class="col-md-8 offset-md-2" v-else>
-      <h3>No results.</h3>
-    </div>
-  </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from "axios"
+import dayjs from "dayjs"
+import { defineComponent } from "vue"
 
-export default {
-  data() {
-    return {
-      empty: true,
-      search: "",
-      questions: [],
-      paginate: ["questions"]
-    };
-  },
-  filters: {
-    dateFormat: function(value) {
-      let date = new Date(value);
-      return date.toString().slice(4, 24);
+export default defineComponent({
+    data() {
+        return {
+            empty: true,
+            search: "",
+            questions: [],
+            perPage: 5,
+            currentPage: 1
+        }
+    },
+    computed: {
+        filterQuestions() {
+            return this.questions.filter((question) => {
+                return (
+                    question.title
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase()) ||
+                    question.user.username
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase()) ||
+                    question.content
+                        .toLowerCase()
+                        .includes(this.search.toLowerCase())
+                )
+            })
+        },
+        displayedQuestions() {
+            const startIndex = this.currentPage * this.perPage - this.perPage
+            const endIndex = startIndex + this.perPage
+            return this.questions.slice(startIndex, endIndex)
+        }
+    },
+    methods: {
+        formatDate(dateString) {
+            const date = dayjs(dateString)
+            return date.format("dddd MMMM D, YYYY")
+        },
+        getQuestions() {
+            const path = "/questions/"
+            axios
+                .get(path)
+                .then((res) => {
+                    this.questions = res.data.questions
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+        },
+        getQuestionsUnsolved() {
+            const path = "/questions/unsolved"
+            axios
+                .get(path)
+                .then((res) => {
+                    this.questions = res.data.questions
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+        },
+        getQuestionsSolved() {
+            const path = "/questions/solved"
+            axios
+                .get(path)
+                .then((res) => {
+                    this.questions = res.data.questions
+                })
+                .catch((error) => {
+                    console.error(error)
+                })
+        },
+        splitTags(value) {
+            return value.split(",")
+        },
+        sortOldest() {
+            this.questions.sort((a, b) => (a.id > b.id ? 1 : -1))
+        },
+        sortMostViewed() {
+            this.questions.sort((a, b) => (a.view < b.view ? 1 : -1))
+        },
+        sortMostLiked() {
+            this.questions.sort((a, b) =>
+                a.question_like < b.question_like ? 1 : -1
+            )
+        }
+    },
+    created() {
+        this.getQuestions()
     }
-  },
-  computed: {
-    filterQuestions() {
-      return this.questions.filter(question => {
-        return (
-          question.title.toLowerCase().includes(this.search.toLowerCase()) ||
-          question.user.username
-            .toLowerCase()
-            .includes(this.search.toLowerCase()) ||
-          question.content.toLowerCase().includes(this.search.toLowerCase())
-        );
-      });
-    }
-  },
-  methods: {
-    getQuestions() {
-      const path = "/questions/";
-      axios
-        .get(path)
-        .then(res => {
-          this.questions = res.data.questions;
-          // eslint-disable-next-line
-        })
-        .catch(error => {
-          // eslint-disable-next-line
-          console.error(error);
-        });
-    },
-    getQuestionsUnsolved() {
-      const path = "/questions/unsolved";
-      axios
-        .get(path)
-        .then(res => {
-          this.questions = res.data.questions;
-        })
-        .catch(error => {
-          // eslint-disable-next-line
-          console.error(error);
-        });
-    },
-    getQuestionsSolved() {
-      const path = "/questions/solved";
-      axios
-        .get(path)
-        .then(res => {
-          this.questions = res.data.questions;
-        })
-        .catch(error => {
-          // eslint-disable-next-line
-          console.error(error);
-        });
-    },
-    splitTags(value) {
-      return value.split(",");
-    },
-    sortOldest() {
-      this.questions.sort((a, b) => (a.id > b.id ? 1 : -1));
-    },
-    sortMostViewed() {
-      this.questions.sort((a, b) => (a.view < b.view ? 1 : -1));
-    },
-    sortMostLiked() {
-      this.questions.sort((a, b) =>
-        a.question_like < b.question_like ? 1 : -1
-      );
-    }
-  },
-  created() {
-    this.getQuestions();
-  }
-};
+})
 </script>
 
-<style lang="css">
-.btn {
-  margin-right: 5px;
+<style>
+.btn-primary {
+    margin-right: 5px;
 }
 
-.errspan {
-  float: right;
-  margin-right: 12px;
-  margin-top: -27px;
-  position: relative;
-  z-index: 2;
+.pagination-container {
+    display: flex;
+    column-gap: 10px;
 }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-  cursor: pointer;
-  border: 1px black;
+.paginate-buttons {
+    height: 40px;
+    width: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    background-color: rgb(242, 242, 242);
+    border: 1px solid rgb(217, 217, 217);
+    color: black;
 }
 
-li {
-  display: inline-block;
-  margin: 0 10px;
+.paginate-buttons:hover {
+    background-color: #d8d8d8;
 }
 
-ul.paginate-links {
-  border: 3.5px solid #007bff;
-  border-radius: 0.25rem;
-  padding: 5px;
+.active-page {
+    background-color: #3498db;
+    border: 1px solid #3498db;
+    color: white;
 }
 
-ul.paginate-links > li.active > a {
-  background-color: #007bff;
-  padding: 0.45rem 0.85rem;
-  color: white;
-  border: 1px solid #007bff;
+.active-page:hover {
+    background-color: #2988c8;
 }
 </style>
