@@ -1,20 +1,23 @@
 import datetime
+
 from starlette.authentication import requires
-from starlette.responses import JSONResponse, Response, RedirectResponse
+from starlette.responses import JSONResponse, RedirectResponse, Response
+from tortoise.exceptions import DoesNotExist
 from tortoise.transactions import in_transaction
-from accounts.models import (
+
+from apps.accounts.models import (
+    ADMIN,
     User,
     check_password,
     generate_jwt,
     hash_password,
     users_schema,
-    ADMIN,
 )
-from questions.models import (
-    Question,
+from apps.questions.models import (
     Answer,
-    questions_schema,
+    Question,
     answers_schema,
+    questions_schema,
 )
 
 
@@ -87,7 +90,7 @@ async def login(request):
             )
             response.set_cookie("admin", ADMIN, httponly=True)
         return response
-    except:
+    except DoesNotExist:
         response = Response(
             "Please register you don't have account!", status_code=422
         )

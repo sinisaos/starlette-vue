@@ -8,6 +8,7 @@ ciso8601
 Click
 contextvars
 cryptography
+fastadmin[fastapi]
 gunicorn
 h11
 httptools
@@ -21,6 +22,7 @@ pycparser
 PyJWT
 PyPika
 python-multipart
+python-dotenv
 pytz
 secure
 six

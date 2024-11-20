@@ -1,17 +1,19 @@
 import datetime
 import itertools as it
+
 from starlette.authentication import requires
 from starlette.responses import JSONResponse, RedirectResponse, Response
 from tortoise.transactions import in_transaction
-from questions.models import (
+
+from apps.accounts.models import ADMIN, User
+from apps.questions.models import (
+    Answer,
     Question,
     Tag,
-    Answer,
-    questions_schema,
     answers_schema,
     question_schema,
+    questions_schema,
 )
-from accounts.models import User, ADMIN
 
 
 async def questions_all(request):

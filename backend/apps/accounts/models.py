@@ -1,15 +1,17 @@
+import os
+
 import bcrypt
 import jwt
-from tortoise.models import Model
-from tortoise import fields
+from marshmallow import Schema
+from marshmallow import fields as flds
 from starlette.authentication import (
+    AuthCredentials,
     AuthenticationBackend,
     AuthenticationError,
     SimpleUser,
-    AuthCredentials,
 )
-from marshmallow import Schema, fields as flds
-from settings import SECRET_KEY
+from tortoise import fields
+from tortoise.models import Model
 
 # change this line to set another user as admin user
 ADMIN = "admin"
@@ -49,7 +51,7 @@ class UserAuthentication(AuthenticationBackend):
             try:
                 payload = jwt.decode(
                     jwt_cookie.encode("utf8"),
-                    str(SECRET_KEY),
+                    str(os.environ["SECRET_KEY"]),
                     algorithms=["HS256"],
                 )
                 if SimpleUser(payload["user_id"]).username == ADMIN:
@@ -79,5 +81,9 @@ def check_password(password: str, hashed_password):
 
 def generate_jwt(user_id):
     payload = {"user_id": user_id}
-    token = jwt.encode(payload, str(SECRET_KEY), algorithm="HS256")
+    token = jwt.encode(
+        payload,
+        str(os.environ["SECRET_KEY"]),
+        algorithm="HS256",
+    )
     return token

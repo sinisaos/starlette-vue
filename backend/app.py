@@ -1,15 +1,28 @@
+import os
+
+from dotenv import find_dotenv, load_dotenv
 from secure import Secure
 from starlette.applications import Starlette
-from starlette.middleware.sessions import SessionMiddleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from starlette.responses import JSONResponse
 from tortoise.contrib.starlette import register_tortoise
-from settings import SECRET_KEY, DB_URI
-from accounts.models import UserAuthentication, User, users_schema, user_schema
-from accounts.routes import routes
-from questions.routes import questions_routes
+from tortoise.exceptions import DoesNotExist
+
+from apps.accounts.models import (
+    User,
+    UserAuthentication,
+    user_schema,
+    users_schema,
+)
+from apps.accounts.routes import routes
+from apps.admin.config import admin_app
+from apps.questions.routes import questions_routes
+
+load_dotenv(find_dotenv())
+
 
 # Security Headers are HTTP response headers that, when set,
 # can enhance the security of your web application
@@ -17,11 +30,12 @@ from questions.routes import questions_routes
 # more on https://secure.readthedocs.io/en/latest/headers.html
 secure_headers = Secure.with_default_headers()
 
-app = Starlette(debug=True)
+app = Starlette()
 app.mount("/accounts", routes)
 app.mount("/questions", questions_routes)
+app.mount("/admin", admin_app)
 app.add_middleware(AuthenticationMiddleware, backend=UserAuthentication())
-app.add_middleware(SessionMiddleware, secret_key=SECRET_KEY)
+app.add_middleware(SessionMiddleware, secret_key=os.environ["SECRET_KEY"])
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -46,7 +60,7 @@ async def index(request):
                 "result": result,
             }
         )
-    except:
+    except DoesNotExist:
         response = JSONResponse(
             {
                 "results": results,
@@ -66,7 +80,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 
 register_tortoise(
     app,
-    db_url=DB_URI,
-    modules={"models": ["accounts.models", "questions.models"]},
+    db_url=os.environ["DB_URI"],
+    modules={"models": ["apps.accounts.models", "apps.questions.models"]},
     generate_schemas=True,
 )
