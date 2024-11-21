@@ -5,7 +5,7 @@ from dotenv import find_dotenv, load_dotenv
 from fastadmin import TortoiseModelAdmin, register, settings
 from fastadmin import fastapi_app as admin_app
 
-from apps.accounts.models import User
+from apps.accounts.models import BaseUser
 from apps.questions.models import Answer, Question, Tag
 
 load_dotenv(find_dotenv())
@@ -21,8 +21,8 @@ settings.settings.ADMIN_USER_MODEL_USERNAME_FIELD = os.getenv(
 settings.settings.ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY")
 
 
-@register(User)
-class UserAdmin(TortoiseModelAdmin):
+@register(BaseUser)
+class BaseUserAdmin(TortoiseModelAdmin):
     exclude = ("password",)
     list_display = (
         "id",
@@ -36,7 +36,9 @@ class UserAdmin(TortoiseModelAdmin):
     search_fields = ("username", "email")
 
     async def authenticate(self, username: str, password: str) -> int | None:
-        user = await User.filter(username=username).first()
+        user = await BaseUser.filter(
+            username=username, is_superuser=True
+        ).first()
         if not user:
             return None
         if not bcrypt.checkpw(password.encode(), user.password.encode()):

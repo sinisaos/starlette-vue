@@ -12,8 +12,9 @@ from tortoise.contrib.starlette import register_tortoise
 from tortoise.exceptions import DoesNotExist
 
 from apps.accounts.models import (
-    User,
+    BaseUser,
     UserAuthentication,
+    hash_password,
     user_schema,
     users_schema,
 )
@@ -35,7 +36,7 @@ app.mount("/accounts", routes)
 app.mount("/questions", questions_routes)
 app.mount("/admin", admin_app)
 app.add_middleware(AuthenticationMiddleware, backend=UserAuthentication())
-app.add_middleware(SessionMiddleware, secret_key=os.environ["SECRET_KEY"])
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("SECRET_KEY"))
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -47,11 +48,20 @@ app.add_middleware(
 
 @app.route("/", methods=["GET"])
 async def index(request):
+    if not await BaseUser.exists(email=os.getenv("ADMIN_EMAIL")):
+        # create superuser
+        user = BaseUser(
+            username=os.getenv("ADMIN_USER"),
+            email=os.getenv("ADMIN_EMAIL"),
+            password=hash_password(os.getenv("ADMIN_PASSWORD")),
+            is_superuser=True,
+        )
+        await user.save()
     auth_user = request.user.display_name
-    users = await User.all().order_by("-id")
+    users = await BaseUser.all().order_by("-id")
     results = users_schema.dump(users)
     try:
-        user = await User.get(username=auth_user)
+        user = await BaseUser.get(username=auth_user)
         result = user_schema.dump(user)
         return JSONResponse(
             {

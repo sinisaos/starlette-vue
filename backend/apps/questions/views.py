@@ -5,7 +5,7 @@ from starlette.authentication import requires
 from starlette.responses import JSONResponse, RedirectResponse, Response
 from tortoise.transactions import in_transaction
 
-from apps.accounts.models import ADMIN, User
+from apps.accounts.models import BaseUser
 from apps.questions.models import (
     Answer,
     Question,
@@ -130,7 +130,7 @@ async def question_create(request):
     Question form
     """
     session_user = request.user.username
-    results = await User.get(username=session_user)
+    results = await BaseUser.get(username=session_user)
     form = await request.json()
     title = form["title"]
     content = form["content"]
@@ -169,11 +169,7 @@ async def question_edit(request):
     id = request.path_params["id"]
     session_user = request.user.username
     question = await Question.get(id=id).prefetch_related("user")
-    if (
-        request.method == "PUT"
-        and question.user.username == session_user
-        or session_user == ADMIN
-    ):
+    if request.method == "PUT" and question.user.username == session_user:
         form = await request.json()
         title = form["title"]
         content = form["content"]
@@ -196,7 +192,7 @@ async def question_edit(request):
 
 async def questions_user(request):
     id = request.path_params["id"]
-    results = await User.get(username=id)
+    results = await BaseUser.get(username=id)
     result = (
         await Question.all()
         .prefetch_related("user", "tags")
@@ -208,7 +204,7 @@ async def questions_user(request):
     return JSONResponse({"questions": questions})
 
 
-@requires(["authenticated", ADMIN])
+@requires("authenticated")
 async def question_delete(request):
     """
     Delete question
@@ -239,7 +235,7 @@ async def answer_create(request):
     session_user = request.user.username
     form = await request.json()
     content = form["content"]
-    result = await User.get(username=session_user)
+    result = await BaseUser.get(username=session_user)
     results = await Question.get(id=id)
     if request.method == "POST":
         query = Answer(
@@ -286,7 +282,7 @@ async def answer_accept(request):
 
 async def answers_user(request):
     id = request.path_params["id"]
-    results = await User.get(username=id)
+    results = await BaseUser.get(username=id)
     result = await Answer.all().filter(ans_user_id=results.id)
     # Serialize the queryset
     answers = answers_schema.dump(result)
@@ -301,11 +297,7 @@ async def answer_edit(request):
     id = request.path_params["id"]
     session_user = request.user.username
     answer = await Answer.get(id=id).prefetch_related("ans_user")
-    if (
-        request.method == "PUT"
-        and answer.ans_user.username == session_user
-        or session_user == ADMIN
-    ):
+    if request.method == "PUT" and answer.ans_user.username == session_user:
         form = await request.json()
         content = form["content"]
         await Answer.filter(id=id).update(

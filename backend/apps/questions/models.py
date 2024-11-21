@@ -18,7 +18,9 @@ class Question(Model):
         "models.Tag", related_name="tags", through="question_tag"
     )
     user = fields.ForeignKeyField(
-        "models.User", related_name="user", on_delete=fields.CASCADE
+        "models.BaseUser",
+        related_name="user",
+        on_delete=fields.CASCADE,
     )
 
     def __str__(self):
@@ -32,10 +34,14 @@ class Answer(Model):
     answer_like = fields.IntField(default=0)
     is_accepted_answer = fields.BooleanField(default=False)
     ans_user = fields.ForeignKeyField(
-        "models.User", related_name="ans_user", on_delete=fields.CASCADE
+        "models.BaseUser",
+        related_name="ans_user",
+        on_delete=fields.CASCADE,
     )
     question = fields.ForeignKeyField(
-        "models.Question", related_name="question", on_delete=fields.CASCADE
+        "models.Question",
+        related_name="question",
+        on_delete=fields.CASCADE,
     )
 
 
