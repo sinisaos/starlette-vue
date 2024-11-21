@@ -1,6 +1,7 @@
-from tortoise.models import Model
+from marshmallow import Schema
+from marshmallow import fields as flds
 from tortoise import fields
-from marshmallow import Schema, fields as flds
+from tortoise.models import Model
 
 
 class Question(Model):
@@ -14,9 +15,13 @@ class Question(Model):
     answer_count = fields.IntField()
     accepted_answer = fields.BooleanField(default=False)
     tags = fields.ManyToManyField(
-        'models.Tag', related_name='tags', through='question_tag')
+        "models.Tag", related_name="tags", through="question_tag"
+    )
     user = fields.ForeignKeyField(
-        'models.User', related_name='user', on_delete=fields.CASCADE)
+        "models.BaseUser",
+        related_name="user",
+        on_delete=fields.CASCADE,
+    )
 
     def __str__(self):
         return self.title
@@ -29,9 +34,15 @@ class Answer(Model):
     answer_like = fields.IntField(default=0)
     is_accepted_answer = fields.BooleanField(default=False)
     ans_user = fields.ForeignKeyField(
-        'models.User', related_name='ans_user', on_delete=fields.CASCADE)
+        "models.BaseUser",
+        related_name="ans_user",
+        on_delete=fields.CASCADE,
+    )
     question = fields.ForeignKeyField(
-        'models.Question', related_name='question', on_delete=fields.CASCADE)
+        "models.Question",
+        related_name="question",
+        on_delete=fields.CASCADE,
+    )
 
 
 class Tag(Model):
@@ -67,10 +78,8 @@ class QuestionSchema(Schema):
     question_like = flds.Int()
     answer_count = flds.Int()
     accepted_answer = flds.Bool()
-    tags = flds.Nested(
-        TagSchema, many=True, dump_only=True)
-    user = flds.Nested(
-        UserSchema, dump_only=True, only=['username'])
+    tags = flds.Nested(TagSchema, many=True, dump_only=True)
+    user = flds.Nested(UserSchema, dump_only=True, only=["username"])
 
 
 class AnswerSchema(Schema):
@@ -79,10 +88,8 @@ class AnswerSchema(Schema):
     created = flds.DateTime()
     answer_like = flds.Int()
     is_accepted_answer = flds.Bool()
-    ans_user = flds.Nested(
-        UserSchema, dump_only=True, only=['username'])
-    question = flds.Nested(
-        QuestionSchema, dump_only=True, only=["id"])
+    ans_user = flds.Nested(UserSchema, dump_only=True, only=["username"])
+    question = flds.Nested(QuestionSchema, dump_only=True, only=["id"])
 
 
 # model schemas
