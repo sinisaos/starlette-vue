@@ -23,7 +23,6 @@ settings.settings.ADMIN_SECRET_KEY = os.getenv("ADMIN_SECRET_KEY")
 
 @register(BaseUser)
 class BaseUserAdmin(TortoiseModelAdmin):
-    exclude = ("password",)
     list_display = (
         "id",
         "username",

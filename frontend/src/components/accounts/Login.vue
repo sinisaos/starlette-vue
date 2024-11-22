@@ -9,10 +9,10 @@
                         dismissible
                         >{{ message }}</b-alert
                     >
-                    <h1>Login</h1>
+                    <h1 class="text-center">Login</h1>
                     <br />
-                    <b-form @submit.prevent="login" class="w-100">
-                        <div class="form-group">
+                    <form @submit.prevent="login" class="w-100">
+                        <div class="mb-3">
                             <label for="username">Username</label>
                             <input
                                 type="text"
@@ -29,7 +29,7 @@
                                 Username is required
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="password">Password</label>
                             <input
                                 type="password"
@@ -52,10 +52,10 @@
                                 >
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="d-grid gap-2">
                             <button class="btn btn-primary">Submit</button>
                         </div>
-                    </b-form>
+                    </form>
                 </div>
             </div>
         </div>

@@ -16,7 +16,6 @@ from apps.accounts.models import (
     UserAuthentication,
     hash_password,
     user_schema,
-    users_schema,
 )
 from apps.accounts.routes import routes
 from apps.admin.config import admin_app
@@ -58,14 +57,11 @@ async def index(request):
         )
         await user.save()
     auth_user = request.user.display_name
-    users = await BaseUser.all().order_by("-id")
-    results = users_schema.dump(users)
     try:
         user = await BaseUser.get(username=auth_user)
         result = user_schema.dump(user)
         return JSONResponse(
             {
-                "results": results,
                 "auth_user": auth_user,
                 "result": result,
             }
@@ -73,8 +69,7 @@ async def index(request):
     except DoesNotExist:
         response = JSONResponse(
             {
-                "results": results,
-                "auth_user": auth_user,
+                "auth_user": "",
             }
         )
         return response
