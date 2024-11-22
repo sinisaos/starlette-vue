@@ -9,10 +9,10 @@
                         dismissible
                         >{{ message }}</b-alert
                     >
-                    <h1>Register</h1>
+                    <h1 class="text-center">Register</h1>
                     <br />
-                    <b-form @submit.prevent="register" class="w-100">
-                        <div class="form-group">
+                    <form @submit.prevent="register" class="w-100">
+                        <div class="mb-3">
                             <label for="username">Username</label>
                             <input
                                 type="text"
@@ -29,7 +29,7 @@
                                 Username is required
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="email">Email</label>
                             <input
                                 type="email"
@@ -51,7 +51,7 @@
                                 >
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="password">Password</label>
                             <input
                                 type="password"
@@ -74,7 +74,7 @@
                                 >
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="passwordConfirmation"
                                 >Confirm Password</label
                             >
@@ -103,10 +103,10 @@
                                 >
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="d-grid gap-2">
                             <button class="btn btn-primary">Register</button>
                         </div>
-                    </b-form>
+                    </form>
                 </div>
             </div>
         </div>

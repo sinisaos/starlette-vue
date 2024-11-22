@@ -1,22 +1,30 @@
-Open terminal and run:
+### Instalation
 
-```shell
-virtualenv -p python3 envname
-cd envname
-source bin/activate
+Clone repository in fresh virtualenv.
+
+```bash
 git clone https://github.com/sinisaos/starlette-vue.git
-cd starlette-vue/backend/
-pip install -r requirements.txt
-sudo -i -u yourpostgresusername psql
-CREATE DATABASE vuedb;
-\q
-touch .env
-## put this two line in .env file
-## DB_URI="postgres://username:password@localhost:5432/vuedb"
-## SECRET_KEY="your secret key"
-cd src
-uvicorn app:app --port 8000 --host 0.0.0.0
-
 ```
 
+### Install requirements
+
+
+```bash
+cd backend
+pip install -r requirements.txt
+```
+
+### Creating an `.env` file.
+
+```bash
+cp .env.example .env && rm .env.example
+```
+
+### Start server 
+
+```bash
+uvicorn app:app --port 8000 --host 0.0.0.0
+```
+
+After site is running log in as admin user on [localhost:8000/admin/](http://localhost:8000/admin/).
 

@@ -11,8 +11,8 @@
                     >
                     <h1>Edit question</h1>
                     <br />
-                    <b-form @submit.prevent="updateQuestion" class="w-100">
-                        <div class="form-group">
+                    <form @submit.prevent="updateQuestion" class="w-100">
+                        <div class="mb-3">
                             <label for="title">Title</label>
                             <input
                                 type="text"
@@ -29,7 +29,7 @@
                                 Title is required
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <label for="content">Content</label>
                             <b-form-textarea
                                 id="content"
@@ -49,7 +49,7 @@
                                 >
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <input
                                 type="hidden"
                                 name="user"
@@ -57,10 +57,10 @@
                                 :value="token"
                             />
                         </div>
-                        <div class="form-group">
+                        <div class="mb-3">
                             <button class="btn btn-primary">Submit</button>
                         </div>
-                    </b-form>
+                    </form>
                 </div>
             </div>
         </div>
@@ -125,14 +125,9 @@ export default defineComponent({
                 .put(path, data)
                 .then((res) => {
                     this.data = res.data
-                    let state = this.$store.state
-                    if (state.token.username === "admin") {
-                        this.$router.replace("/dashboard/questions")
-                    } else {
-                        this.$router.replace(
-                            "/profile/" + this.token + "/questions"
-                        )
-                    }
+                    this.$router.replace(
+                        "/profile/" + this.token + "/questions"
+                    )
                 })
                 .catch((err) => {
                     this.message = err.response.data
